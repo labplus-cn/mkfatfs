@@ -32,13 +32,12 @@
 //#endif
 #include <io.h>
 
-#include "wear_levelling.h"
 #include "esp_err.h"
 #include "esp_vfs_fat.h"
 //#include "esp_vfs.h" //do not include, dirent.h conflict
 
-#include "fatfs/fatfs.h"
-#include "fatfs/FatPartition.h"
+#include "user_vfs.h"
+#include "FatPartition.h"
 #include "esp_log.h"
 
 static const char *BASE_PATH = "/spiflash";
@@ -53,7 +52,7 @@ static std::string s_dirName;
 static std::string s_imageName;
 static int s_imageSize;
 
-static wl_handle_t s_wl_handle;
+static RAM_handle_t s_ram_handle;
 static FATFS* s_fs = NULL;
 
 //----------------------------
@@ -137,79 +136,6 @@ int addFile(char* path_src, const char* path_des) {
 
     return 0;
 }
-
-/*
-//-------------------------------------------------------
-int addFiles(const char* dirname, const char* subPath) {
-    DIR *dir;
-    struct dirent *ent;
-    bool error = false;
-    std::string dirPath = dirname;
-    dirPath += subPath;   //需打包的文件夹， eg: "abc/"
-
-    // Open directory
-    if ((dir = opendir (dirPath.c_str())) != NULL) {
-
-        // Read files from directory.
-        while ((ent = readdir (dir)) != NULL) { //处理目录中的每一项
-            // Ignore dir itself.
-            if (ent->d_name[0] == '.')				
-                continue;            	
-
-            std::string fullpath = dirPath;
-            fullpath += ent->d_name;
-            struct stat path_stat;
-            stat (fullpath.c_str(), &path_stat); //通过文件名filename获取文件信息
-
-            if (!S_ISREG(path_stat.st_mode)) { //非常规文件
-                // Check if path is a directory.
-                if (S_ISDIR(path_stat.st_mode)) { 
-                    // Prepare new sub path.
-                    std::string newSubPath = subPath;
-                    newSubPath += ent->d_name;
-                    
-                    addDir(newSubPath.c_str());
-                    
-                    newSubPath += "/";
-
-                    if (addFiles(dirname, newSubPath.c_str()) != 0)
-                    {
-                        std::cerr << "Error for adding content from " << ent->d_name << "!" << std::endl;
-                    }
-
-                    continue;
-                }
-                else {
-                    std::cerr << "skipping " << ent->d_name << std::endl;
-                    continue;
-                }
-            }
-
-            // Filepath with dirname as root folder.
-            std::string filepath = subPath;
-            filepath += ent->d_name;
-            std::cout << "adding to image: " << filepath << std::endl;
-
-            // Add File to image.
-            if (addFile((char*)filepath.c_str(), fullpath.c_str()) != 0) {
-                std::cerr << "error adding file!" << std::endl;
-                error = true;
-                if (g_debugLevel > 0) {
-                    std::cout << std::endl;
-                }
-                break;
-            }
-        } // end while
-        closedir (dir);
-    }
-    else {
-        std::cerr << "warning: can't read source directory: \"" << dirPath << "\"" << std::endl;
-        return 1;
-    }
-
-    return (error) ? 1 : 0;
-}
-*/
 
 /* parkToRamFS()
     遍历源文件夹，拷贝到RAM fat file system
@@ -468,7 +394,7 @@ bool fatfsMount() {
   esp_vfs_fat_mount_config_t mountConfig;
   mountConfig.max_files = 4; //最大打开文件数量
   mountConfig.format_if_mount_failed = true;
-  result = (ESP_OK == emulate_esp_vfs_fat_spiflash_mount(BASE_PATH, &mountConfig, &s_wl_handle, &s_fs, s_imageSize));
+  result = (ESP_OK == emulate_esp_vfs_fat_spiflash_mount(BASE_PATH, &mountConfig, &s_ram_handle, &s_fs, s_imageSize));
 
   return result;
 }
@@ -478,7 +404,7 @@ bool fatfsMount() {
 bool fatfsUnmount() {
   bool result;
 
-  result = (ESP_OK == emulate_esp_vfs_fat_spiflash_unmount(BASE_PATH, s_wl_handle));
+  result = (ESP_OK == emulate_esp_vfs_fat_spiflash_unmount(BASE_PATH, s_ram_handle));
 
   if (result) {
     if (g_debugLevel > 0) {
@@ -516,6 +442,7 @@ int actionPack() {
     ret = parkToRamFS(s_dirName.c_str(), BASE_PATH); 
     fatfsUnmount();
 
+std::cout << "g_flashmem[0]: " << g_flashmem[0] << "size: " << g_flashmem.size() << std::endl;
     fwrite(&g_flashmem[0], 4, g_flashmem.size()/4, fdres); //把g_flashmem中的数据(RAM fat file system)写入目标打包文件，4字节对齐？
     fclose(fdres);
 

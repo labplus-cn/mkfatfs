@@ -1,26 +1,18 @@
 #CFLAGS		?= -std=gnu99 -Os -Wall
 #CXXFLAGS	?= -std=gnu++11 -Os -Wall
+BUILD ?= build
+IDF_DIR = esp_idf
+IDF_INCLUDES += -I $(IDF_DIR)
+IDF_INCLUDES += -I $(IDF_DIR)/freertos
 
-IDF_MODIFIED_DIR = idf/modified
-IDF_INCLUDES += -I $(IDF_MODIFIED_DIR)
-IDF_INCLUDES += -I $(IDF_MODIFIED_DIR)/driver/include
-IDF_INCLUDES += -I $(IDF_MODIFIED_DIR)/fatfs/src
-IDF_INCLUDES += -I $(IDF_MODIFIED_DIR)/freertos/include
-IDF_INCLUDES += -I $(IDF_MODIFIED_DIR)/log/include
-IDF_INCLUDES += -I $(IDF_MODIFIED_DIR)/newlib/include
-IDF_INCLUDES += -I $(IDF_MODIFIED_DIR)/vfs/include
-IDF_INCLUDES += -I $(IDF_MODIFIED_DIR)/vfs/include/sys
-IDF_INCLUDES += -I $(IDF_MODIFIED_DIR)/wear_levelling/include
+FILESYSTEM_DIR = filesystem
+IDF_INCLUDES += -I $(FILESYSTEM_DIR)/diskio
+IDF_INCLUDES += -I $(FILESYSTEM_DIR)/fatfs
+IDF_INCLUDES += -I $(FILESYSTEM_DIR)/vfs
 
-IDF_ORIG_DIR = idf/orig
-IDF_INCLUDES += -I $(IDF_ORIG_DIR)
-IDF_INCLUDES += -I $(IDF_ORIG_DIR)/driver/include
-IDF_INCLUDES += -I $(IDF_ORIG_DIR)/driver/include/driver
-IDF_INCLUDES += -I $(IDF_ORIG_DIR)/esp32/include
-IDF_INCLUDES += -I $(IDF_ORIG_DIR)/fatfs/src
-IDF_INCLUDES += -I $(IDF_ORIG_DIR)/sdmmc/include
-IDF_INCLUDES += -I $(IDF_ORIG_DIR)/spi_flash/include
-IDF_INCLUDES += -I $(IDF_ORIG_DIR)/wear_levelling/private_include
+TCLAP_DIR = tclap
+IDF_INCLUDES += -I $(TCLAP_DIR)
+
 # OS = 1
 ifdef OS
 ifeq ($(OS),Windows_NT)
@@ -74,28 +66,20 @@ else
 	TARGET := mkfatfs
 endif
 
-OBJ             := main.o \
-		   fatfs/fatfs.o \
-		   fatfs/ccsbcs.o \
-		   fatfs/crc.o \
-		   fatfs/FatPartition.o \
-		   $(IDF_MODIFIED_DIR)/fatfs/src/ff.o \
-		   $(IDF_MODIFIED_DIR)/fatfs/src/vfs_fat.o \
-		   $(IDF_MODIFIED_DIR)/freertos/include/freertos/semphr.o \
-		   $(IDF_MODIFIED_DIR)/newlib/include/sys/lock.o \
-		   $(IDF_MODIFIED_DIR)/newlib/include/sys/idf_reent.o \
-		   $(IDF_MODIFIED_DIR)/newlib/include/sys/errno.o \
-		   $(IDF_MODIFIED_DIR)/spi_flash/partition.o \
-		   $(IDF_MODIFIED_DIR)/vfs/vfs.o \
-		   $(IDF_MODIFIED_DIR)/wear_levelling/wear_levelling.o \
-		   $(IDF_ORIG_DIR)/fatfs/src/diskio.o \
-		   $(IDF_ORIG_DIR)/fatfs/src/diskio_spiflash.o \
-		   $(IDF_ORIG_DIR)/fatfs/src/option/syscall.o \
-		   $(IDF_ORIG_DIR)/wear_levelling/crc32.o \
-		   $(IDF_ORIG_DIR)/wear_levelling/WL_Flash.o \
-		   $(IDF_ORIG_DIR)/wear_levelling/WL_Ext_Perf.o \
-		   $(IDF_ORIG_DIR)/wear_levelling/WL_Ext_Safe.o \
-
+OBJ := $(BUILD)/main.o \
+	$(BUILD)/$(IDF_DIR)/errno.o \
+	$(BUILD)/$(IDF_DIR)/idf_reent.o \
+	$(BUILD)/$(IDF_DIR)/lock.o \
+	$(BUILD)/$(IDF_DIR)/freertos/semphr.o \
+	$(BUILD)/$(FILESYSTEM_DIR)/fatfs/ccsbcs.o \
+	$(BUILD)/$(FILESYSTEM_DIR)/fatfs/esp_vfs_fat.o \
+	$(BUILD)/$(FILESYSTEM_DIR)/fatfs/ff.o \
+	$(BUILD)/$(FILESYSTEM_DIR)/fatfs/syscall.o \
+	$(BUILD)/$(FILESYSTEM_DIR)/diskio/diskio_RAM.o \
+	$(BUILD)/$(FILESYSTEM_DIR)/diskio/diskio.o \
+	$(BUILD)/$(FILESYSTEM_DIR)/diskio/FatPartition.o \
+	$(BUILD)/$(FILESYSTEM_DIR)/vfs/user_vfs.o \
+	$(BUILD)/$(FILESYSTEM_DIR)/vfs/vfs.o \
 				   
 VERSION ?= $(shell git describe --always)
 
@@ -105,41 +89,27 @@ all: $(TARGET)
 
 $(TARGET):
 	@echo "Building mkfatfs ..."
-	$(CXX) $(TARGET_CXXFLAGS) -c main.cpp -o main.o
-	$(CC) $(TARGET_CFLAGS) -c fatfs/fatfs.c -o fatfs/fatfs.o
-	$(CC) $(TARGET_CFLAGS) -c fatfs/ccsbcs.c -o fatfs/ccsbcs.o
-	$(CXX) $(TARGET_CXXFLAGS) -c fatfs/crc.cpp -o fatfs/crc.o
-	$(CXX) $(TARGET_CXXFLAGS) -c fatfs/FatPartition.cpp -o fatfs/FatPartition.o
-	$(CC) $(TARGET_CFLAGS) -c $(IDF_MODIFIED_DIR)/fatfs/src/ff.c -o $(IDF_MODIFIED_DIR)/fatfs/src/ff.o
-	$(CC) $(TARGET_CFLAGS) -c $(IDF_MODIFIED_DIR)/fatfs/src/vfs_fat.c -o $(IDF_MODIFIED_DIR)/fatfs/src/vfs_fat.o
-	$(CC) $(TARGET_CFLAGS) -c $(IDF_MODIFIED_DIR)/freertos/include/freertos/semphr.c -o $(IDF_MODIFIED_DIR)/freertos/include/freertos/semphr.o
-	$(CC) $(TARGET_CFLAGS) -c $(IDF_MODIFIED_DIR)/newlib/include/sys/lock.c -o $(IDF_MODIFIED_DIR)/newlib/include/sys/lock.o
-	$(CC) $(TARGET_CFLAGS) -c $(IDF_MODIFIED_DIR)/newlib/include/sys/idf_reent.c -o $(IDF_MODIFIED_DIR)/newlib/include/sys/idf_reent.o
-	$(CC) $(TARGET_CFLAGS) -c $(IDF_MODIFIED_DIR)/newlib/include/sys/errno.c -o $(IDF_MODIFIED_DIR)/newlib/include/sys/errno.o
-	$(CC) $(TARGET_CFLAGS) -c $(IDF_MODIFIED_DIR)/spi_flash/partition.c -o $(IDF_MODIFIED_DIR)/spi_flash/partition.o
-	$(CC) $(TARGET_CFLAGS) -c $(IDF_MODIFIED_DIR)/vfs/vfs.c -o $(IDF_MODIFIED_DIR)/vfs/vfs.o
-	$(CXX) $(TARGET_CXXFLAGS) -c $(IDF_MODIFIED_DIR)/wear_levelling/wear_levelling.cpp -o $(IDF_MODIFIED_DIR)/wear_levelling/wear_levelling.o
-	$(CC) $(TARGET_CFLAGS) -c $(IDF_ORIG_DIR)/fatfs/src/diskio.c -o $(IDF_ORIG_DIR)/fatfs/src/diskio.o
-	$(CC) $(TARGET_CFLAGS) -c $(IDF_ORIG_DIR)/fatfs/src/diskio_spiflash.c -o $(IDF_ORIG_DIR)/fatfs/src/diskio_spiflash.o
-	$(CC) $(TARGET_CFLAGS) -c $(IDF_ORIG_DIR)/fatfs/src/option/syscall.c -o $(IDF_ORIG_DIR)/fatfs/src/option/syscall.o
-	$(CXX) $(TARGET_CXXFLAGS) -c $(IDF_ORIG_DIR)/wear_levelling/crc32.cpp -o $(IDF_ORIG_DIR)/wear_levelling/crc32.o
-	$(CXX) $(TARGET_CXXFLAGS) -c $(IDF_ORIG_DIR)/wear_levelling/WL_Flash.cpp -o $(IDF_ORIG_DIR)/wear_levelling/WL_Flash.o
-	$(CXX) $(TARGET_CXXFLAGS) -c $(IDF_ORIG_DIR)/wear_levelling/WL_Ext_Perf.cpp -o $(IDF_ORIG_DIR)/wear_levelling/WL_Ext_Perf.o
-	$(CXX) $(TARGET_CXXFLAGS) -c $(IDF_ORIG_DIR)/wear_levelling/WL_Ext_Safe.cpp -o $(IDF_ORIG_DIR)/wear_levelling/WL_Ext_Safe.o
+	$(CXX) $(TARGET_CXXFLAGS) -c main.cpp -o $(BUILD)/main.o
+	$(CC) $(TARGET_CFLAGS) -c $(IDF_DIR)/errno.c -o $(BUILD)/$(IDF_DIR)/errno.o 
+	$(CC) $(TARGET_CFLAGS) -c $(IDF_DIR)/idf_reent.c -o $(BUILD)/$(IDF_DIR)/idf_reent.o 
+	$(CC) $(TARGET_CFLAGS) -c $(IDF_DIR)/lock.c -o $(BUILD)/$(IDF_DIR)/lock.o 
+	$(CC) $(TARGET_CFLAGS) -c $(IDF_DIR)/freertos/semphr.c -o $(BUILD)/$(IDF_DIR)/freertos/semphr.o 
+	$(CC) $(TARGET_CFLAGS) -c $(FILESYSTEM_DIR)/fatfs/ccsbcs.c -o $(BUILD)/$(FILESYSTEM_DIR)/fatfs/ccsbcs.o 
+	$(CC) $(TARGET_CFLAGS) -c $(FILESYSTEM_DIR)/fatfs/esp_vfs_fat.c -o $(BUILD)/$(FILESYSTEM_DIR)/fatfs/esp_vfs_fat.o
+	$(CC) $(TARGET_CFLAGS) -c $(FILESYSTEM_DIR)/fatfs/ff.c -o $(BUILD)/$(FILESYSTEM_DIR)/fatfs/ff.o 
+	$(CC) $(TARGET_CFLAGS) -c $(FILESYSTEM_DIR)/fatfs/syscall.c -o $(BUILD)/$(FILESYSTEM_DIR)/fatfs/syscall.o 
+	$(CXX) $(TARGET_CXXFLAGS) -c $(FILESYSTEM_DIR)/diskio/diskio_RAM.cpp -o $(BUILD)/$(FILESYSTEM_DIR)/diskio/diskio_RAM.o
+	$(CC) $(TARGET_CFLAGS) -c $(FILESYSTEM_DIR)/diskio/diskio.c -o $(BUILD)/$(FILESYSTEM_DIR)/diskio/diskio.o
+	$(CXX) $(TARGET_CXXFLAGS) -c $(FILESYSTEM_DIR)/diskio/FatPartition.cpp -o $(BUILD)/$(FILESYSTEM_DIR)/diskio/FatPartition.o
+	$(CC) $(TARGET_CFLAGS) -c $(FILESYSTEM_DIR)/vfs/user_vfs.c -o $(BUILD)/$(FILESYSTEM_DIR)/vfs/user_vfs.o 
+	$(CC) $(TARGET_CFLAGS) -c $(FILESYSTEM_DIR)/vfs/vfs.c -o $(BUILD)/$(FILESYSTEM_DIR)/vfs/vfs.o
 	$(CXX) $(TARGET_CFLAGS) -o $(TARGET) $(OBJ) $(TARGET_LDFLAGS)
-
-
 	
 clean:
 	@rm -f *.o
-	@rm -f fatfs/*.o
-	@rm -f $(IDF_MODIFIED_DIR)/fatfs/src/*.o
-	@rm -f $(IDF_MODIFIED_DIR)/freertos/include/freertos/*.o
-	@rm -f $(IDF_MODIFIED_DIR)/newlib/include/sys/*.o
-	@rm -f $(IDF_MODIFIED_DIR)/spi_flash/*.o
-	@rm -f $(IDF_MODIFIED_DIR)/vfs/*.o
-	@rm -f $(IDF_MODIFIED_DIR)/wear_levelling/*.o
-	@rm -f $(IDF_ORIG_DIR)/fatfs/src/*.o
-	@rm -f $(IDF_ORIG_DIR)/fatfs/src/option/*.o
-	@rm -f $(IDF_ORIG_DIR)/wear_levelling/*.o
+	@rm -f $(BUILD)/$(IDF_DIR)/*.o
+	@rm -f $(BUILD)/$(IDF_DIR)/frertos/*.o
+	@rm -f $(I$(BUILD)/$(FILESYSTEM_DIR)/fatfs/*.o
+	@rm -f $(BUILD)/$(FILESYSTEM_DIR)/diskio/*.o
+	@rm -f $(BUILD)/$(FILESYSTEM_DIR)/vfs/*.o
 	@rm -f $(TARGET)
