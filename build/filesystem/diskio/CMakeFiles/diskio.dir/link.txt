@@ -1,0 +1,2 @@
+C:\mingw64\bin\ar.exe qc libdiskio.a  CMakeFiles/diskio.dir/FatPartition.cpp.obj CMakeFiles/diskio.dir/diskio.c.obj CMakeFiles/diskio.dir/diskio_RAM.cpp.obj
+C:\mingw64\bin\ranlib.exe libdiskio.a

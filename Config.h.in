@@ -1,0 +1,5 @@
+// the configured options and settings for Tutorial
+#define mkfatfs_VERSION_MAJOR @mkfatfs_VERSION_MAJOR@
+#define mkfatfs_VERSION_MINOR @mkfatfs_VERSION_MINOR@
+#define mkfatfs_VERSION_PATCH @mkfatfs_VERSION_PATCH@
+#define mkfatfs_VERSION "@mkfatfs_VERSION@"

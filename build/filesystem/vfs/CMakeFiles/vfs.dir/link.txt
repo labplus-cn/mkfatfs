@@ -1,0 +1,2 @@
+C:\mingw64\bin\ar.exe qc libvfs.a  CMakeFiles/vfs.dir/user_vfs.c.obj CMakeFiles/vfs.dir/vfs.c.obj
+C:\mingw64\bin\ranlib.exe libvfs.a

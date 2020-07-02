@@ -1,0 +1,2 @@
+C:\mingw64\bin\ar.exe qc libesp-idf.a  CMakeFiles/esp-idf.dir/errno.c.obj CMakeFiles/esp-idf.dir/idf_reent.c.obj CMakeFiles/esp-idf.dir/lock.c.obj
+C:\mingw64\bin\ranlib.exe libesp-idf.a

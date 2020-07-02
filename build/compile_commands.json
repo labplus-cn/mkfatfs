@@ -1,0 +1,77 @@
+[
+{
+  "directory": "E:/3 micropython/2 micropython-esp32/mkfatfs/build",
+  "command": "C:\\mingw64\\bin\\g++.exe   @CMakeFiles/mkfatfs.dir/includes_CXX.rsp -O3 -DNDEBUG   -o CMakeFiles\\mkfatfs.dir\\main.cpp.obj -c \"E:\\3 micropython\\2 micropython-esp32\\mkfatfs\\main.cpp\"",
+  "file": "E:/3 micropython/2 micropython-esp32/mkfatfs/main.cpp"
+},
+{
+  "directory": "E:/3 micropython/2 micropython-esp32/mkfatfs/build",
+  "command": "C:\\mingw64\\bin\\g++.exe   @CMakeFiles/mkfatfs.dir/includes_CXX.rsp -O3 -DNDEBUG   -o CMakeFiles\\mkfatfs.dir\\pack_win32.cpp.obj -c \"E:\\3 micropython\\2 micropython-esp32\\mkfatfs\\pack_win32.cpp\"",
+  "file": "E:/3 micropython/2 micropython-esp32/mkfatfs/pack_win32.cpp"
+},
+{
+  "directory": "E:/3 micropython/2 micropython-esp32/mkfatfs/build/esp_idf",
+  "command": "C:\\mingw64\\bin\\gcc.exe  @CMakeFiles/esp-idf.dir/includes_C.rsp -O3 -DNDEBUG   -o CMakeFiles\\esp-idf.dir\\errno.c.obj   -c \"E:\\3 micropython\\2 micropython-esp32\\mkfatfs\\esp_idf\\errno.c\"",
+  "file": "E:/3 micropython/2 micropython-esp32/mkfatfs/esp_idf/errno.c"
+},
+{
+  "directory": "E:/3 micropython/2 micropython-esp32/mkfatfs/build/esp_idf",
+  "command": "C:\\mingw64\\bin\\gcc.exe  @CMakeFiles/esp-idf.dir/includes_C.rsp -O3 -DNDEBUG   -o CMakeFiles\\esp-idf.dir\\idf_reent.c.obj   -c \"E:\\3 micropython\\2 micropython-esp32\\mkfatfs\\esp_idf\\idf_reent.c\"",
+  "file": "E:/3 micropython/2 micropython-esp32/mkfatfs/esp_idf/idf_reent.c"
+},
+{
+  "directory": "E:/3 micropython/2 micropython-esp32/mkfatfs/build/esp_idf",
+  "command": "C:\\mingw64\\bin\\gcc.exe  @CMakeFiles/esp-idf.dir/includes_C.rsp -O3 -DNDEBUG   -o CMakeFiles\\esp-idf.dir\\lock.c.obj   -c \"E:\\3 micropython\\2 micropython-esp32\\mkfatfs\\esp_idf\\lock.c\"",
+  "file": "E:/3 micropython/2 micropython-esp32/mkfatfs/esp_idf/lock.c"
+},
+{
+  "directory": "E:/3 micropython/2 micropython-esp32/mkfatfs/build/filesystem/diskio",
+  "command": "C:\\mingw64\\bin\\g++.exe   @CMakeFiles/diskio.dir/includes_CXX.rsp -O3 -DNDEBUG   -o CMakeFiles\\diskio.dir\\FatPartition.cpp.obj -c \"E:\\3 micropython\\2 micropython-esp32\\mkfatfs\\filesystem\\diskio\\FatPartition.cpp\"",
+  "file": "E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/diskio/FatPartition.cpp"
+},
+{
+  "directory": "E:/3 micropython/2 micropython-esp32/mkfatfs/build/filesystem/diskio",
+  "command": "C:\\mingw64\\bin\\gcc.exe  @CMakeFiles/diskio.dir/includes_C.rsp -O3 -DNDEBUG   -o CMakeFiles\\diskio.dir\\diskio.c.obj   -c \"E:\\3 micropython\\2 micropython-esp32\\mkfatfs\\filesystem\\diskio\\diskio.c\"",
+  "file": "E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/diskio/diskio.c"
+},
+{
+  "directory": "E:/3 micropython/2 micropython-esp32/mkfatfs/build/filesystem/diskio",
+  "command": "C:\\mingw64\\bin\\g++.exe   @CMakeFiles/diskio.dir/includes_CXX.rsp -O3 -DNDEBUG   -o CMakeFiles\\diskio.dir\\diskio_RAM.cpp.obj -c \"E:\\3 micropython\\2 micropython-esp32\\mkfatfs\\filesystem\\diskio\\diskio_RAM.cpp\"",
+  "file": "E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/diskio/diskio_RAM.cpp"
+},
+{
+  "directory": "E:/3 micropython/2 micropython-esp32/mkfatfs/build/filesystem/fatfs",
+  "command": "C:\\mingw64\\bin\\gcc.exe  @CMakeFiles/fatfs.dir/includes_C.rsp -O3 -DNDEBUG   -o CMakeFiles\\fatfs.dir\\ccsbcs.c.obj   -c \"E:\\3 micropython\\2 micropython-esp32\\mkfatfs\\filesystem\\fatfs\\ccsbcs.c\"",
+  "file": "E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/ccsbcs.c"
+},
+{
+  "directory": "E:/3 micropython/2 micropython-esp32/mkfatfs/build/filesystem/fatfs",
+  "command": "C:\\mingw64\\bin\\gcc.exe  @CMakeFiles/fatfs.dir/includes_C.rsp -O3 -DNDEBUG   -o CMakeFiles\\fatfs.dir\\esp_vfs_fat.c.obj   -c \"E:\\3 micropython\\2 micropython-esp32\\mkfatfs\\filesystem\\fatfs\\esp_vfs_fat.c\"",
+  "file": "E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/esp_vfs_fat.c"
+},
+{
+  "directory": "E:/3 micropython/2 micropython-esp32/mkfatfs/build/filesystem/fatfs",
+  "command": "C:\\mingw64\\bin\\gcc.exe  @CMakeFiles/fatfs.dir/includes_C.rsp -O3 -DNDEBUG   -o CMakeFiles\\fatfs.dir\\ff.c.obj   -c \"E:\\3 micropython\\2 micropython-esp32\\mkfatfs\\filesystem\\fatfs\\ff.c\"",
+  "file": "E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/ff.c"
+},
+{
+  "directory": "E:/3 micropython/2 micropython-esp32/mkfatfs/build/filesystem/fatfs",
+  "command": "C:\\mingw64\\bin\\gcc.exe  @CMakeFiles/fatfs.dir/includes_C.rsp -O3 -DNDEBUG   -o CMakeFiles\\fatfs.dir\\syscall.c.obj   -c \"E:\\3 micropython\\2 micropython-esp32\\mkfatfs\\filesystem\\fatfs\\syscall.c\"",
+  "file": "E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/syscall.c"
+},
+{
+  "directory": "E:/3 micropython/2 micropython-esp32/mkfatfs/build/filesystem/vfs",
+  "command": "C:\\mingw64\\bin\\gcc.exe  @CMakeFiles/vfs.dir/includes_C.rsp -O3 -DNDEBUG   -o CMakeFiles\\vfs.dir\\user_vfs.c.obj   -c \"E:\\3 micropython\\2 micropython-esp32\\mkfatfs\\filesystem\\vfs\\user_vfs.c\"",
+  "file": "E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/vfs/user_vfs.c"
+},
+{
+  "directory": "E:/3 micropython/2 micropython-esp32/mkfatfs/build/filesystem/vfs",
+  "command": "C:\\mingw64\\bin\\gcc.exe  @CMakeFiles/vfs.dir/includes_C.rsp -O3 -DNDEBUG   -o CMakeFiles\\vfs.dir\\vfs.c.obj   -c \"E:\\3 micropython\\2 micropython-esp32\\mkfatfs\\filesystem\\vfs\\vfs.c\"",
+  "file": "E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/vfs/vfs.c"
+},
+{
+  "directory": "E:/3 micropython/2 micropython-esp32/mkfatfs/build/esp_idf/freertos",
+  "command": "C:\\mingw64\\bin\\gcc.exe  @CMakeFiles/freertos.dir/includes_C.rsp -O3 -DNDEBUG   -o CMakeFiles\\freertos.dir\\semphr.c.obj   -c \"E:\\3 micropython\\2 micropython-esp32\\mkfatfs\\esp_idf\\freertos\\semphr.c\"",
+  "file": "E:/3 micropython/2 micropython-esp32/mkfatfs/esp_idf/freertos/semphr.c"
+}
+]

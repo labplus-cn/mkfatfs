@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="E:\3 micropython\2 micropython-esp32\mkfatfs\build\CMakeFiles\1fc69d3d98938fee8240eeea9462ea81\Experimental.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="E:\3 micropython\2 micropython-esp32\mkfatfs\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="E:\3 micropython\2 micropython-esp32\mkfatfs\build\CMakeFiles\Experimental" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{EEE50BF6-2DBF-379E-B397-3BE5B8EE8D57}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

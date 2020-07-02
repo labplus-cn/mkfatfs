@@ -1,0 +1,136 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+.././sdkconfig.h
+
+../esp_idf/freertos/include/FreeRTOS.h
+stdlib.h
+-
+stdint.h
+-
+
+../esp_idf/freertos/include/queue.h
+
+../esp_idf/freertos/include/semphr.h
+FreeRTOS.h
+../esp_idf/freertos/include/FreeRTOS.h
+queue.h
+../esp_idf/freertos/include/queue.h
+
+../esp_idf/include/errno.h
+idf_reent.h
+../esp_idf/include/idf_reent.h
+
+../esp_idf/include/esp_err.h
+stdint.h
+-
+stdio.h
+-
+assert.h
+-
+
+../esp_idf/include/esp_log.h
+
+../esp_idf/include/idf_reent.h
+
+../esp_idf/include/lock.h
+
+../filesystem/diskio/include/diskio.h
+integer.h
+../filesystem/diskio/include/integer.h
+esp_err.h
+../filesystem/diskio/include/esp_err.h
+
+../filesystem/fatfs/include/ff.h
+integer.h
+../filesystem/fatfs/include/integer.h
+ffconf.h
+../filesystem/fatfs/include/ffconf.h
+
+../filesystem/fatfs/include/ffconf.h
+sdkconfig.h
+../filesystem/fatfs/include/sdkconfig.h
+FreeRTOS.h
+../filesystem/fatfs/include/FreeRTOS.h
+semphr.h
+../filesystem/fatfs/include/semphr.h
+
+../filesystem/fatfs/include/integer.h
+windows.h
+-
+tchar.h
+-
+
+../filesystem/vfs/include/esp_vfs.h
+stdint.h
+-
+stddef.h
+-
+stdarg.h
+-
+esp_err.h
+../filesystem/vfs/include/esp_err.h
+sys/types.h
+-
+idf_reent.h
+-
+sys/stat.h
+-
+idf_dirent.h
+-
+
+../filesystem/vfs/include/idf_dirent.h
+stddef.h
+-
+stdint.h
+-
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/ccsbcs.c
+ff.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/ff.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/esp_vfs_fat.c
+string.h
+-
+stdlib.h
+-
+unistd.h
+-
+idf_dirent.h
+-
+time.h
+-
+errno.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/errno.h
+sys/fcntl.h
+-
+lock.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/lock.h
+esp_vfs.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/esp_vfs.h
+esp_log.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/esp_log.h
+ff.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/ff.h
+diskio.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/diskio.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/ff.c
+ff.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/ff.h
+diskio.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/diskio.h
+stdarg.h
+-
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/syscall.c
+ff.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/ff.h
+semphr.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/filesystem/fatfs/semphr.h
+

@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../esp_idf/include/errno.h
+idf_reent.h
+../esp_idf/include/idf_reent.h
+
+../esp_idf/include/idf_reent.h
+
+../esp_idf/include/lock.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/esp_idf/errno.c
+errno.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/esp_idf/errno.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/esp_idf/idf_reent.c
+idf_reent.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/esp_idf/idf_reent.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/esp_idf/lock.c
+lock.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/esp_idf/lock.h
+

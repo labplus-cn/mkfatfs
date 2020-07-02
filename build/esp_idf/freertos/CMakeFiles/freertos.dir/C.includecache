@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../esp_idf/freertos/include/FreeRTOS.h
+stdlib.h
+-
+stdint.h
+-
+
+../esp_idf/freertos/include/queue.h
+
+../esp_idf/freertos/include/semphr.h
+FreeRTOS.h
+../esp_idf/freertos/include/FreeRTOS.h
+queue.h
+../esp_idf/freertos/include/queue.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/esp_idf/freertos/semphr.c
+semphr.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/esp_idf/freertos/semphr.h
+

@@ -1,0 +1,424 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+.././sdkconfig.h
+
+../esp_idf/freertos/include/FreeRTOS.h
+stdlib.h
+-
+stdint.h
+-
+
+../esp_idf/freertos/include/queue.h
+
+../esp_idf/freertos/include/semphr.h
+FreeRTOS.h
+../esp_idf/freertos/include/FreeRTOS.h
+queue.h
+../esp_idf/freertos/include/queue.h
+
+../esp_idf/include/esp_err.h
+stdint.h
+-
+stdio.h
+-
+assert.h
+-
+
+../esp_idf/include/esp_log.h
+
+../esp_idf/include/esp_partition.h
+stdint.h
+-
+stdbool.h
+-
+stddef.h
+-
+esp_err.h
+../esp_idf/include/esp_err.h
+
+../filesystem/diskio/include/FatPartition.h
+vector
+-
+esp_err.h
+../filesystem/diskio/include/esp_err.h
+esp_partition.h
+../filesystem/diskio/include/esp_partition.h
+Flash_Access.h
+../filesystem/diskio/include/Flash_Access.h
+
+../filesystem/diskio/include/Flash_Access.h
+esp_err.h
+../filesystem/diskio/include/esp_err.h
+
+../filesystem/diskio/include/diskio_RAM.h
+integer.h
+../filesystem/diskio/include/integer.h
+esp_partition.h
+../filesystem/diskio/include/esp_partition.h
+
+../filesystem/fatfs/include/esp_vfs_fat.h
+stddef.h
+-
+esp_err.h
+../filesystem/fatfs/include/esp_err.h
+ff.h
+../filesystem/fatfs/include/ff.h
+
+../filesystem/fatfs/include/ff.h
+integer.h
+../filesystem/fatfs/include/integer.h
+ffconf.h
+../filesystem/fatfs/include/ffconf.h
+
+../filesystem/fatfs/include/ffconf.h
+sdkconfig.h
+../filesystem/fatfs/include/sdkconfig.h
+FreeRTOS.h
+../filesystem/fatfs/include/FreeRTOS.h
+semphr.h
+../filesystem/fatfs/include/semphr.h
+
+../filesystem/fatfs/include/integer.h
+windows.h
+-
+tchar.h
+-
+
+../filesystem/vfs/include/user_vfs.h
+esp_err.h
+../filesystem/vfs/include/esp_err.h
+diskio_RAM.h
+../filesystem/vfs/include/diskio_RAM.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/main.cpp
+config.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/config.h
+iostream
+-
+vector
+-
+cstring
+-
+string
+-
+time.h
+-
+memory
+-
+cstdlib
+-
+esp_err.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/esp_err.h
+esp_log.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/esp_log.h
+tclap/CmdLine.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/CmdLine.h
+tclap/UnlabeledValueArg.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/UnlabeledValueArg.h
+pack_win32.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/pack_win32.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/pack_win32.cpp
+pack_win32.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/pack_win32.h
+iostream
+-
+vector
+-
+sys/types.h
+-
+sys/stat.h
+-
+sys/fcntl.h
+-
+unistd.h
+-
+cstring
+-
+string
+-
+time.h
+-
+memory
+-
+cstdlib
+-
+stdio.h
+-
+io.h
+-
+dirent.h
+-
+esp_vfs_fat.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/esp_vfs_fat.h
+user_vfs.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/user_vfs.h
+esp_err.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/esp_err.h
+esp_log.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/esp_log.h
+FatPartition.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/FatPartition.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/pack_win32.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Arg.h
+config.h
+-
+string
+-
+vector
+-
+list
+-
+iostream
+-
+iomanip
+-
+cstdio
+-
+sstream
+-
+strstream
+-
+ArgException.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/ArgException.h
+Visitor.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Visitor.h
+CmdLineInterface.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/CmdLineInterface.h
+ArgTraits.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/ArgTraits.h
+StandardTraits.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/StandardTraits.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/ArgException.h
+string
+-
+exception
+-
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/ArgTraits.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/CmdLine.h
+SwitchArg.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/SwitchArg.h
+MultiSwitchArg.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/MultiSwitchArg.h
+UnlabeledValueArg.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/UnlabeledValueArg.h
+UnlabeledMultiArg.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/UnlabeledMultiArg.h
+XorHandler.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/XorHandler.h
+HelpVisitor.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/HelpVisitor.h
+VersionVisitor.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/VersionVisitor.h
+IgnoreRestVisitor.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/IgnoreRestVisitor.h
+CmdLineOutput.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/CmdLineOutput.h
+StdOutput.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/StdOutput.h
+Constraint.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Constraint.h
+ValuesConstraint.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/ValuesConstraint.h
+string
+-
+vector
+-
+list
+-
+iostream
+-
+iomanip
+-
+algorithm
+-
+stdlib.h
+-
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/CmdLineInterface.h
+string
+-
+vector
+-
+list
+-
+iostream
+-
+algorithm
+-
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/CmdLineOutput.h
+string
+-
+vector
+-
+list
+-
+iostream
+-
+iomanip
+-
+algorithm
+-
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Constraint.h
+string
+-
+vector
+-
+list
+-
+iostream
+-
+iomanip
+-
+algorithm
+-
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/HelpVisitor.h
+CmdLineInterface.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/CmdLineInterface.h
+CmdLineOutput.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/CmdLineOutput.h
+Visitor.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Visitor.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/IgnoreRestVisitor.h
+Visitor.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Visitor.h
+Arg.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Arg.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/MultiArg.h
+string
+-
+vector
+-
+Arg.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Arg.h
+Constraint.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Constraint.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/MultiSwitchArg.h
+string
+-
+vector
+-
+SwitchArg.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/SwitchArg.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/OptionalUnlabeledTracker.h
+string
+-
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/StandardTraits.h
+config.h
+-
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/StdOutput.h
+string
+-
+vector
+-
+list
+-
+iostream
+-
+algorithm
+-
+CmdLineInterface.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/CmdLineInterface.h
+CmdLineOutput.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/CmdLineOutput.h
+XorHandler.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/XorHandler.h
+Arg.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Arg.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/SwitchArg.h
+string
+-
+vector
+-
+Arg.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Arg.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/UnlabeledMultiArg.h
+string
+-
+vector
+-
+MultiArg.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/MultiArg.h
+OptionalUnlabeledTracker.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/OptionalUnlabeledTracker.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/UnlabeledValueArg.h
+string
+-
+vector
+-
+ValueArg.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/ValueArg.h
+OptionalUnlabeledTracker.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/OptionalUnlabeledTracker.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/ValueArg.h
+string
+-
+vector
+-
+Arg.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Arg.h
+Constraint.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Constraint.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/ValuesConstraint.h
+string
+-
+vector
+-
+Constraint.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Constraint.h
+config.h
+-
+sstream
+-
+strstream
+-
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/VersionVisitor.h
+CmdLineInterface.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/CmdLineInterface.h
+CmdLineOutput.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/CmdLineOutput.h
+Visitor.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Visitor.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Visitor.h
+
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/XorHandler.h
+Arg.h
+E:/3 micropython/2 micropython-esp32/mkfatfs/tclap/Arg.h
+string
+-
+vector
+-
+algorithm
+-
+iostream
+-
+
+config.h
+
