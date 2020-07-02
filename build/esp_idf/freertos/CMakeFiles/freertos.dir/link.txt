@@ -1,2 +1,0 @@
-C:\mingw64\bin\ar.exe qc libfreertos.a  CMakeFiles/freertos.dir/semphr.c.obj
-C:\mingw64\bin\ranlib.exe libfreertos.a

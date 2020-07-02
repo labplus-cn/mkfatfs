@@ -1,2 +1,0 @@
-C:\mingw64\bin\ar.exe qc libfatfs.a  CMakeFiles/fatfs.dir/ccsbcs.c.obj CMakeFiles/fatfs.dir/esp_vfs_fat.c.obj CMakeFiles/fatfs.dir/ff.c.obj CMakeFiles/fatfs.dir/syscall.c.obj
-C:\mingw64\bin\ranlib.exe libfatfs.a

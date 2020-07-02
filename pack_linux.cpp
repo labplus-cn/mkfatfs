@@ -22,8 +22,7 @@
 #include <dirent.h>
 #include "esp_err.h"
 #include "esp_vfs_fat.h"
-#include "fatfs/fatfs.h"
-#include "fatfs/FatPartition.h"
+#include "FatPartition.h"
 
 static const char *BASE_PATH = "/";
 

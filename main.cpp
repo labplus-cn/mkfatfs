@@ -5,7 +5,7 @@
 //  Created by Victor Mizikov on 20/09/2017.
 //  Copyright (c) 2017 Victor Mizikov. All rights reserved.
 //
-#include "config.h"
+#include "Config.h"
 #include <iostream>
 #include <vector>
 #include <cstring>

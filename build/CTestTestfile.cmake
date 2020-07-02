@@ -1,6 +1,6 @@
 # CMake generated Testfile for 
-# Source directory: E:/3 micropython/2 micropython-esp32/mkfatfs
-# Build directory: E:/3 micropython/2 micropython-esp32/mkfatfs/build
+# Source directory: /home/jiang/share/mkfatfs
+# Build directory: /home/jiang/share/mkfatfs/build
 # 
 # This file includes the relevant testing commands required for 
 # testing this directory and lists subdirectories to be tested as well.

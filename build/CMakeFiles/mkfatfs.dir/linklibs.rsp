@@ -1,1 +1,0 @@
--Wl,--start-group esp_idf/libesp-idf.a filesystem/vfs/libvfs.a filesystem/diskio/libdiskio.a filesystem/fatfs/libfatfs.a esp_idf/freertos/libfreertos.a -Wl,--end-group -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 
