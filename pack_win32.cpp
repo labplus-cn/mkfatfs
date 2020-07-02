@@ -24,21 +24,16 @@
 #include "user_vfs.h"
 #include "esp_err.h"
 #include "esp_log.h"
-
-
 #include "FatPartition.h"
 
-static const char *BASE_PATH = "/";
+static const char *BASE_PATH = "/fatfs";
 static const char* TAG = "pack.cpp";
-
-static std::string s_dirName;
-static std::string s_imageName;
-static int s_imageSize;
-
 static RAM_handle_t s_ram_handle;
 static FATFS* s_fs = NULL;
 
-//----------------------------
+/* addDir()
+    在FAT文件系统中创建一个目录
+*/
 int addDir(const char* name) {
     std::string fileName = name;
     fileName += "/.";
@@ -57,32 +52,26 @@ int addDir(const char* name) {
 }
 
 /*
-    path: source file
-    name: des file
+    path_src: source file in pc
+    path_des: des file in vfs fat
+    path_src and path_des are full path.
 */
-//-----------------------------------------
 int addFile(char* path_src, const char* path_des) {
-    //spiffs_metadata_t meta;
-
-    FILE* f_src = fopen(path_src, "rb"); //源文件
+    FILE* f_src = fopen(path_src, "rb"); //PC端源文件
     if (!f_src) {
         std::cerr << "error: failed to open " << path_src << " for reading" << std::endl;
         return 1;
     }
 
-
-    // std::string nameInFat = BASE_PATH;
     std::string nameInFat = path_des;
-
     const int flags = O_CREAT | O_TRUNC | O_RDWR;
-    int fd = emulate_esp_vfs_open(nameInFat.c_str(), flags, 0);
+    int fd = emulate_esp_vfs_open(nameInFat.c_str(), flags, 0); //if not exist, create it.
     if (fd < 0) {
         std::cerr << "error: failed to open \"" << nameInFat << "\" for writing" << std::endl;
         return 0; //0 does not stop copying files
     }
 
-
-    // read file size
+    // read src file size
     fseek(f_src, 0, SEEK_END);
     size_t size = ftell(f_src);
     fseek(f_src, 0, SEEK_SET);
@@ -121,7 +110,7 @@ int addFile(char* path_src, const char* path_des) {
 }
 
 /* parkToRamFS()
-    遍历源文件夹，拷贝到RAM fat file system
+    遍历pc端源文件夹，拷贝目录/文件到RAM fat file system（esp32的文件系统）
     params:
     sourceFiles:源文件兲路径
 */
@@ -207,15 +196,11 @@ bool dirExists(const char* path) {
     return false;
 }
 
-
 /**
  * @brief Create directory if it not exists.
  * @param path Directory path.
  * @return True or false.
- *
- * @author Pascal Gollor (http://www.pgollor.de/cms/)
  */
-//--------------------------------
 bool dirCreate(const char* path) {
     // Check if directory also exists.
     if (dirExists(path)) {
@@ -257,10 +242,7 @@ int unparkFileFromRamFS(const char* path_src, const char* path_des)
         return 1;
     }
 
-
-    // read file size
     size_t size = emulate_esp_vfs_lseek(f_src, 0, SEEK_END);
-    // size_t size = ftell(f_src);
     emulate_esp_vfs_lseek(f_src, 0, SEEK_SET);
     std::cout << "file size: " << size << std::endl;
     if (g_debugLevel > 0) {
@@ -268,36 +250,8 @@ int unparkFileFromRamFS(const char* path_src, const char* path_des)
     }
 
     temp_buf.resize(size);
-    // if(emulate_esp_vfs_read(f_src, (void *)&g_flashmem[0], size) < size);
-    // {
-    //     std::cout << "file read error! " << std::endl;
-    //     return -1;
-    // }
     emulate_esp_vfs_read(f_src, (void *)&temp_buf[0], size);
     fwrite ( (const void *)&temp_buf[0], 1, size, f_des );
-
-
-    // size_t left = size;
-    // uint8_t data_byte;
-    // while (left > 0){
-    //     if (1 != fread(&data_byte, 1, 1, f_des)) {
-    //         std::cerr << "fread error!" << std::endl;
-    //         fclose(f_des);
-    //         emulate_esp_vfs_close(fd);
-    //         return 1;
-    //     }
-    //     ssize_t res = emulate_esp_vfs_write(fd, &data_byte, 1);
-    //     if (res < 0) {
-    //         std::cerr << "esp_vfs_write() error" << std::endl;
-    //         if (g_debugLevel > 0) {
-    //             std::cout << "data left: " << left << std::endl;
-    //         }
-    //         fclose(f_src);
-    //         emulate_esp_vfs_close(fd);
-    //         return 1;
-    //     }
-    //     left -= 1;
-    // }
 
     emulate_esp_vfs_close(f_src);
     fclose(f_des);
@@ -371,8 +325,13 @@ bool unparkFilesFromRamFS(const char* dirSrc, const char* dirDes)
     return (error) ? 1 : 0;
 }
 
-//挂载一个文件系统，挂载点"/spiflash"，大小：s_imageSize，返回指针s_ram_handle s_fs
-bool fatfsMount() {
+/**
+ * @brief Mount RAM fat filesystem(esp32's filesystem) to "/fatfs". so we can use vfs read/write it.
+ *      挂载一个文件系统，挂载点"/spiflash"，大小：s_imageSize，返回指针s_ram_handle s_fs
+ * @param 
+ * @return True or false.
+ */
+bool fatfsMount(int s_imageSize) {
   bool result;
   esp_vfs_fat_mount_config_t mountConfig;
   mountConfig.max_files = 4; //最大打开文件数量
@@ -383,7 +342,11 @@ bool fatfsMount() {
 }
 
 
-//-------------------
+/**
+ * @brief Unount RAM fat filesystem(esp32's filesystem).
+ * @param 
+ * @return True or false.
+ */
 bool fatfsUnmount() {
   bool result;
 
@@ -400,19 +363,18 @@ bool fatfsUnmount() {
   return result;
 }
 
-//----------------
-int actionPack() {
+/**
+ * @brief ccpy all directory/file to esp32's fat filesystem.
+ * @param 
+ * @return True or false.
+ */
+int actionPack(std::string s_dirName, std::string s_imageName, int s_imageSize) {
     int ret = 0; //0 - ok
 
-    g_flashmem.resize(s_imageSize, 0xff);
-
-    FILE* fdres = fopen(s_imageName.c_str(), "wb");  //打开目标打包文件(esp32文件系统bin)
-    if (!fdres) {
-        std::cerr << "error: failed to open image file" << std::endl;
-        return 1;
-    }
-
-    if (fatfsMount()) {
+    // 1. resize g_flashmem and fill 0xff, it will used for RAM fat filesystem.
+    g_flashmem.resize(s_imageSize, 0xff); 
+    // 2. mount g_flashmem(in RAM) as a fat filesystem, mount point is BASE_PATH(root directory of the RAM filesystem). 
+    if (fatfsMount(s_imageSize)) { 
       if (g_debugLevel > 0) {
         std::cout << "Mounted successfully" << std::endl;
       }
@@ -420,13 +382,17 @@ int actionPack() {
       std::cerr << "Mount failed" << std::endl;
       return 1;
     }  
-
-    // ret = addFiles(s_dirName.c_str());
-    // 把s_dirName指定的目录下的文件，写到挂载的RAM文件系统中。
+    // 3. copy all directorys/files to the RAM fat filesystem.
     ret = parkToRamFS(s_dirName.c_str(), BASE_PATH); 
-
+    // 4. unmount the RAM fat filesystem.
     fatfsUnmount();
-
+    // 5. open *.bin file witch read from esp32. 
+    FILE* fdres = fopen(s_imageName.c_str(), "wb"); 
+    if (!fdres) {
+        std::cerr << "error: failed to open image file" << std::endl;
+        return 1;
+    }
+    // 6. copy all data in g_flashmem to *.bin file.
     std::cout << "g_flashmem[0]: " << g_flashmem[0] << "size: " << g_flashmem.size() << std::endl;
     fwrite(&g_flashmem[0], 4, g_flashmem.size()/4, fdres); //把g_flashmem中的数据(RAM fat file system)写入目标打包文件，4字节对齐？
     fclose(fdres);
@@ -448,11 +414,13 @@ static size_t getFileSize(FILE* fp)
 
 /**
  * @brief Unpack action.
+ *  unpack all the directorys/files in *bin(read from esp32) to a pc directory
+ * @param s_imageName *.bin file name.
+ * @param s_imageSize *.bin file's size.
+ * @param s_dirName directory in pc, we will read all files to it.
  * @return 0 success, 1 error
- *
- * @author Pascal Gollor (http://www.pgollor.de/cms/)
  */
-int actionUnpack(void)
+int actionUnpack(std::string s_imageName, std::string s_dirName,int s_imageSize)
 {
     int ret = 0;
 
@@ -466,20 +434,14 @@ int actionUnpack(void)
     if (s_imageSize == 0) {
         s_imageSize = getFileSize(f_src); //获取映像文件(bin)大小
     }
-
-    // int err = checkArgs();
-    // if (err != 0) {
-    //     return err;
-    // }
-
     g_flashmem.resize(s_imageSize, 0xff); //RAM模拟fatfs设置大小
 
-    // 2. read content into s_flashmem, --> to RAM file system
+    // 2. read content in *.bin into g_flashmem, --> to RAM file system, like memcopy.
     fread(&g_flashmem[0], 4, g_flashmem.size() / 4, f_src); //映像文件载入到RAM文件系统中。
     // close file handle
     fclose(f_src);
 
-    // 3. mount RAM file system， so we can use vfs read file in RAM file system.
+    // 3. mount RAM(g_flashmem) file system， so we can use vfs read file in RAM file system.
     if (fatfsMount()) {
       if (g_debugLevel > 0) {
         std::cout << "Mounted successfully" << std::endl;
