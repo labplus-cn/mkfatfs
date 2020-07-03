@@ -5,36 +5,29 @@
 //  Created by zhao hui jiang on 07/03/2020.
 //  Copyright (c). All rights reserved.
 //
-#include "pack_win32.h"
-#include <iostream>
-#include <vector>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/fcntl.h>
-#include <unistd.h>
-#include <cstring>
-#include <string>
-#include <time.h>
-#include <memory>
-#include <cstdlib>
-#include <stdio.h>
-#include <io.h>
-#include <dirent.h>
-#include "esp_vfs_fat.h"
-#include "user_vfs.h"
-#include "esp_err.h"
-#include "esp_log.h"
-#include "FatPartition.h"
+#include "pack.h"
 
 static const char *BASE_PATH = "/fatfs";
 static const char* TAG = "pack.cpp";
 static RAM_handle_t s_ram_handle;
 static FATFS* s_fs = NULL;
 
+Pack::Pack()
+{}
+Pack::~Pack()
+{}
+
+size_t Pack::getFileSize(FILE* fp)
+{
+    fseek(fp, 0L, SEEK_END);
+    size_t size = (size_t) ftell(fp);
+    fseek(fp, 0L, SEEK_SET);
+    return size;
+}
 /* addDir()
     在FAT文件系统中创建一个目录
 */
-int addDir(const char* name) {
+int Pack::addDir(const char* name) {
     std::string fileName = name;
     fileName += "/.";
 
@@ -52,11 +45,12 @@ int addDir(const char* name) {
 }
 
 /*
+    copy file in pc to vfs fat filesystem.
     path_src: source file in pc
     path_des: des file in vfs fat
     path_src and path_des are full path.
 */
-int addFile(char* path_src, const char* path_des) {
+int Pack::addFile(char* path_src, const char* path_des) {
     FILE* f_src = fopen(path_src, "rb"); //PC端源文件
     if (!f_src) {
         std::cerr << "error: failed to open " << path_src << " for reading" << std::endl;
@@ -109,58 +103,58 @@ int addFile(char* path_src, const char* path_des) {
     return 0;
 }
 
-/* parkToRamFS()
-    遍历pc端源文件夹，拷贝目录/文件到RAM fat file system（esp32的文件系统）
-    params:
-    sourceFiles:源文件兲路径
-*/
-bool parkToRamFS(const char* dirSrc, const char* dirDes)
+/**
+ * @brief copy directorys/files in pc to vfs fat filesystem(esp32)
+ * @param dirSrc Directory path in pc.
+ * @param dirDes root Directory path of vfs fat(/fatfs).
+ * @return True if exists otherwise false.
+ *
+ */
+bool Pack::parkToRamFS(const char* dirSrc, const char* dirDes)
 {  
     DIR *dir;
     bool error = false;
 
     intptr_t handle;
-    _finddata_t findData;
-    std::string dir_OS = dirSrc;
+    std::string dir_root;
+    std::string dir_pc = dirSrc;
     std::string dir_RAM_fs = dirDes;
-    std::string dir_s;
-    std::string dir_d;
+    std::string dir_full_path_s;
+    std::string dir_full_path_d;
 
     // Open directory
-    if ((dir = opendir (dir_OS.c_str())) != NULL) 
+    if ((dir = opendir (dir_pc.c_str())) != NULL) 
     {
         closedir (dir);
-    }
-    else
-    {
-        std::cerr << "warning: can't read source directory: \"" << dir_OS.c_str() << "\"" << std::endl;
+    }else{
+        std::cerr << "warning: can't read source directory: \"" << dir_pc.c_str() << "\"" << std::endl;
         return error;
     }
     
-    std::string dir_root = dir_OS + "\\*.*";
+#if defined(_WIN32)
+    _finddata_t findData;
+    dir_root = dir_pc + "\\*.*";
     handle = _findfirst(dir_root.c_str(), &findData);
-    if (handle == -1)        // 检查是否成功
+    if (handle == -1)    
         return error;
-
     do
     {
-        dir_s = dir_OS + "\\" + findData.name;
-        dir_d = dir_RAM_fs + "/" + findData.name;
+        dir_full_path_s = dir_pc + "\\" + findData.name;
+        dir_full_path_d = dir_RAM_fs + "/" + findData.name;
         if (findData.attrib & _A_SUBDIR) //目录
         {
             if (strcmp(findData.name, ".") == 0 || strcmp(findData.name, "..") == 0)
                 continue;
-            // dir_s = dir_OS + "\\" + findData.name;
-            // dir_d = dir_RAM_fs + "/" + findData.name;
-            std::cout << "\n" << "dir_RAM_fs: "<< dir_RAM_fs.c_str() << "  dir_OS: "<< dir_OS.c_str() << std::endl;
-            std::cout << "Sub dir: "<< findData.name << "  full dir_s: "<< dir_s.c_str() << "   full dir_d: "<< dir_d.c_str() << "\n" << std::endl;
-            emulate_vfs_mkdir(dir_d.c_str(), 1);
-            parkToRamFS(dir_s.c_str(), dir_d.c_str()); //通过递归调用，实现进入各级子目录拷贝
+
+            std::cout << "\n" << "dir_RAM_fs: "<< dir_RAM_fs.c_str() << "  dir_pc: "<< dir_pc.c_str() << std::endl;
+            std::cout << "Sub dir: "<< findData.name << "  full dir_full_path_s: "<< dir_full_path_s.c_str() << "   full dir_full_path_d: "<< dir_full_path_d.c_str() << "\n" << std::endl;
+            emulate_vfs_mkdir(dir_full_path_d.c_str(), 1);
+            parkToRamFS(dir_full_path_s.c_str(), dir_full_path_d.c_str()); //通过递归调用，实现进入各级子目录拷贝
         }
         else 
         {
             // Add File to image.
-            if (addFile((char*)dir_s.c_str(), dir_d.c_str()) != 0) {
+            if (addFile((char*)dir_full_path_s.c_str(), dir_full_path_d.c_str()) != 0) {
                 std::cerr << "error adding file!" << "\n" << std::endl;
                 error = true;
                 if (g_debugLevel > 0) {
@@ -168,12 +162,59 @@ bool parkToRamFS(const char* dirSrc, const char* dirDes)
                 }
                 break;
             }
-            std::cout << "Pack file, dir_s: " << dir_s.c_str() << "dir_d: "<< dir_d.c_str() << "  file name: "<< findData.name << std::endl;
+            std::cout << "Pack file, dir_full_path_s: " << dir_full_path_s.c_str() << "dir_full_path_d: "<< dir_full_path_d.c_str() << "  file name: "<< findData.name << std::endl;
         }
 
     } while (_findnext(handle, &findData) == 0);
 
     _findclose(handle);    // 关闭搜索句柄
+#else
+    struct dirent *ent;
+    dir_root = dir_pc + "/";
+
+    // Open directory
+    if ((dir = opendir (dir_root.c_str())) != NULL) {
+
+        // Read files from directory.
+        while ((ent = readdir (dir)) != NULL) 
+        {
+            dir_full_path_s = dir_pc + "/" +  ent->d_name;
+            dir_full_path_d = dir_RAM_fs + "/" +  ent->d_name;
+
+            if ((ent->d_name[0] == '.')	|| (ent->d_name[0] == '..')) // Ignore dir itself.			
+                continue;            	
+
+            std::cout << "\n" << "dir_RAM_fs: "<< dir_RAM_fs.c_str() << "  dir_pc: "<< dir_pc.c_str() << std::endl;
+            std::cout << "Sub dir: "<< ent->d_name << "  full dir_full_path_s: "<< dir_full_path_s.c_str() << "   full dir_full_path_d: "<< dir_full_path_d.c_str() << "\n" << std::endl;
+           
+            struct stat path_stat;
+            stat (dir_full_path_s.c_str(), &path_stat);
+
+            if (!S_ISREG(path_stat.st_mode)) {
+                if (S_ISDIR(path_stat.st_mode)) { // Check if path is a directory.
+                    emulate_vfs_mkdir(dir_full_path_d.c_str(), 1);  //create directory in vfs fat filesystem.
+                    parkToRamFS(dir_full_path_s.c_str(), dir_full_path_d.c_str()); //通过递归调用，实现进入各级子目录拷贝
+                }
+                else
+                {
+                    std::cerr << "skipping " << ent->d_name << std::endl;
+                    continue;
+                }
+            }
+
+            // Add File to image.
+            if (addFile((char*)dir_full_path_s.c_str(), dir_full_path_d.c_str()) != 0) {
+                std::cerr << "error adding file!" << std::endl;
+                error = true;
+                if (g_debugLevel > 0) {
+                    std::cout << std::endl;
+                }
+                break;
+            }
+        } // end while
+        closedir (dir);
+    } 
+#endif 
     return error;
 }
 
@@ -184,8 +225,7 @@ bool parkToRamFS(const char* dirSrc, const char* dirDes)
  *
  * @author Pascal Gollor (http://www.pgollor.de/cms/)
  */
-//--------------------------------
-bool dirExists(const char* path) {
+bool Pack::dirExists(const char* path) {
     DIR *d = opendir(path);
 
     if (d) {
@@ -201,7 +241,7 @@ bool dirExists(const char* path) {
  * @param path Directory path.
  * @return True or false.
  */
-bool dirCreate(const char* path) {
+bool Pack::dirCreate(const char* path) {
     // Check if directory also exists.
     if (dirExists(path)) {
 	    return false;
@@ -225,7 +265,7 @@ bool dirCreate(const char* path) {
     path_des: des file, to OS
 */
 //-----------------------------------------
-int unparkFileFromRamFS(const char* path_src, const char* path_des) 
+int Pack::unparkFileFromRamFS(const char* path_src, const char* path_des) 
 {
     std::vector<uint8_t> temp_buf;
 
@@ -264,16 +304,16 @@ int unparkFileFromRamFS(const char* path_src, const char* path_des)
     params:
     dirDes:目标路径
 */
-bool unparkFilesFromRamFS(const char* dirSrc, const char* dirDes)
+bool Pack::unparkFilesFromRamFS(const char* dirSrc, const char* dirDes)
 {
     DIR *dir;
     struct dirent *ent;
     bool error = false;
-    std::string dir_OS = dirDes;
+    std::string dir_pc = dirDes;
     std::string dir_RAM_fs = dirSrc;
-    std::string dir_s;
-    std::string dir_d;
-    std::cout << "dir_RAM_fs: "<< dir_RAM_fs.c_str() << "  dir_OS: "<< dir_OS.c_str() << std::endl;
+    std::string dir_full_path_s;
+    std::string dir_full_path_d;
+    std::cout << "dir_RAM_fs: "<< dir_RAM_fs.c_str() << "  dir_pc: "<< dir_pc.c_str() << std::endl;
 
     // Open directory
     // std::cout << "dir_RAM_fs: "<< dir_RAM_fs.c_str()  << std::endl;
@@ -288,16 +328,16 @@ bool unparkFilesFromRamFS(const char* dirSrc, const char* dirDes)
                 continue;
             }
                
-            dir_s = dir_RAM_fs + "/" + ent->d_name;
-            dir_d = dir_OS + "\\" + ent->d_name;
-            std::cout << "RAM dir: "<< dir_s.c_str() << std::endl;
+            dir_full_path_s = dir_RAM_fs + "/" + ent->d_name;
+            dir_full_path_d = dir_pc + "\\" + ent->d_name;
+            std::cout << "RAM dir: "<< dir_full_path_s.c_str() << std::endl;
             struct stat path_stat;
-            emulate_esp_vfs_stat (dir_s.c_str(), &path_stat); //通过文件名filename获取文件信息
+            emulate_esp_vfs_stat (dir_full_path_s.c_str(), &path_stat); //通过文件名filename获取文件信息
 
             if (S_ISDIR(path_stat.st_mode)) { 
-                std::cout << "Sub dir: "<< ent->d_name << "  full dir_s: "<< dir_s.c_str() << "   full dir_d: "<< dir_d.c_str() << "\n" << std::endl;
-                dirCreate(dir_d.c_str());
-                if (unparkFilesFromRamFS(dir_s.c_str(), dir_d.c_str()) != 0)
+                std::cout << "Sub dir: "<< ent->d_name << "  full dir_full_path_s: "<< dir_full_path_s.c_str() << "   full dir_full_path_d: "<< dir_full_path_d.c_str() << "\n" << std::endl;
+                dirCreate(dir_full_path_d.c_str());
+                if (unparkFilesFromRamFS(dir_full_path_s.c_str(), dir_full_path_d.c_str()) != 0)
                 {
                     std::cerr << "Error for unpark content from " << ent->d_name << "!" << std::endl;
                 }
@@ -305,7 +345,7 @@ bool unparkFilesFromRamFS(const char* dirSrc, const char* dirDes)
             else if (S_ISREG(path_stat.st_mode)) //常规文件
             { 
                 // Add File to image.
-                if (unparkFileFromRamFS(dir_s.c_str(), dir_d.c_str()) != 0) {
+                if (unparkFileFromRamFS(dir_full_path_s.c_str(), dir_full_path_d.c_str()) != 0) {
                     std::cerr << "error unpark file!" << std::endl;
                     error = true;
                     if (g_debugLevel > 0) {
@@ -331,7 +371,7 @@ bool unparkFilesFromRamFS(const char* dirSrc, const char* dirDes)
  * @param 
  * @return True or false.
  */
-bool fatfsMount(int s_imageSize) {
+bool Pack::fatfsMount(int s_imageSize) {
   bool result;
   esp_vfs_fat_mount_config_t mountConfig;
   mountConfig.max_files = 4; //最大打开文件数量
@@ -347,7 +387,7 @@ bool fatfsMount(int s_imageSize) {
  * @param 
  * @return True or false.
  */
-bool fatfsUnmount() {
+bool Pack::fatfsUnmount() {
   bool result;
 
   result = (ESP_OK == emulate_esp_vfs_fat_spiflash_unmount(BASE_PATH, s_ram_handle));
@@ -368,11 +408,12 @@ bool fatfsUnmount() {
  * @param 
  * @return True or false.
  */
-int actionPack(std::string s_dirName, std::string s_imageName, int s_imageSize) {
+int Pack::actionPack(std::string s_dirName, std::string s_imageName, int s_imageSize) {
     int ret = 0; //0 - ok
 
     // 1. resize g_flashmem and fill 0xff, it will used for RAM fat filesystem.
-    g_flashmem.resize(s_imageSize, 0xff); 
+    g_flashmem.resize(s_imageSize, 0xff);
+
     // 2. mount g_flashmem(in RAM) as a fat filesystem, mount point is BASE_PATH(root directory of the RAM filesystem). 
     if (fatfsMount(s_imageSize)) { 
       if (g_debugLevel > 0) {
@@ -382,16 +423,20 @@ int actionPack(std::string s_dirName, std::string s_imageName, int s_imageSize) 
       std::cerr << "Mount failed" << std::endl;
       return 1;
     }  
+
     // 3. copy all directorys/files to the RAM fat filesystem.
-    ret = parkToRamFS(s_dirName.c_str(), BASE_PATH); 
+    ret = parkToRamFS(s_dirName.c_str(), BASE_PATH);
+
     // 4. unmount the RAM fat filesystem.
     fatfsUnmount();
+
     // 5. open *.bin file witch read from esp32. 
     FILE* fdres = fopen(s_imageName.c_str(), "wb"); 
     if (!fdres) {
         std::cerr << "error: failed to open image file" << std::endl;
         return 1;
     }
+
     // 6. copy all data in g_flashmem to *.bin file.
     std::cout << "g_flashmem[0]: " << g_flashmem[0] << "size: " << g_flashmem.size() << std::endl;
     fwrite(&g_flashmem[0], 4, g_flashmem.size()/4, fdres); //把g_flashmem中的数据(RAM fat file system)写入目标打包文件，4字节对齐？
@@ -404,14 +449,6 @@ int actionPack(std::string s_dirName, std::string s_imageName, int s_imageSize) 
     return ret;
 }
 
-static size_t getFileSize(FILE* fp)
-{
-    fseek(fp, 0L, SEEK_END);
-    size_t size = (size_t) ftell(fp);
-    fseek(fp, 0L, SEEK_SET);
-    return size;
-}
-
 /**
  * @brief Unpack action.
  *  unpack all the directorys/files in *bin(read from esp32) to a pc directory
@@ -420,7 +457,7 @@ static size_t getFileSize(FILE* fp)
  * @param s_dirName directory in pc, we will read all files to it.
  * @return 0 success, 1 error
  */
-int actionUnpack(std::string s_imageName, std::string s_dirName,int s_imageSize)
+int Pack::actionUnpack(std::string s_imageName, std::string s_dirName,int s_imageSize)
 {
     int ret = 0;
 
@@ -442,7 +479,7 @@ int actionUnpack(std::string s_imageName, std::string s_dirName,int s_imageSize)
     fclose(f_src);
 
     // 3. mount RAM(g_flashmem) file system， so we can use vfs read file in RAM file system.
-    if (fatfsMount()) {
+    if (fatfsMount(s_imageSize)) {
       if (g_debugLevel > 0) {
         std::cout << "Mounted successfully" << std::endl;
       }
@@ -451,7 +488,7 @@ int actionUnpack(std::string s_imageName, std::string s_dirName,int s_imageSize)
       return 1;
     } 
     // std::cout << "g_flashmem: "<< g_flashmem[3] << std::endl; //test
-    // 4. fine dir_OS dir, if no create it.
+    // 4. fine dir_pc dir, if no create it.
     dirCreate(s_dirName.c_str());
 
     // 5. unpack files,s_dirName:RAM中提取文件后要存入的目标文件夹。

@@ -1,11 +1,3 @@
-//
-//  pack_linux.cpp
-//  mkfatfs
-//
-//  Created by Victor Mizikov on 20/09/2017.
-//  Copyright (c) 2017 Victor Mizikov. All rights reserved.
-//
-
 #include <iostream>
 #include <vector>
 #include <sys/types.h>
@@ -37,91 +29,6 @@ static int s_imageSize;
 
 static wl_handle_t s_wl_handle;
 static FATFS* s_fs = NULL;
-
-
-// WHITECAT BEGIN
-int addDir(const char* name) {
-    std::string fileName = name;
-    fileName += "/.";
-
-    if (g_debugLevel > 0) {
-      std::cout << "creating dir: " << fileName << std::endl;
-    }
-
-    std::string nameInFat = BASE_PATH;
-    nameInFat += name;
-    int res = emulate_vfs_mkdir(nameInFat.c_str(), O_CREAT);
-    if (res < 0) {
-      std::cerr << "failed to create dir" << std::endl;
-    }
-    return 0;
-}
-// WHITECAT END
-
-int addFile(char* name, const char* path) {
-    //spiffs_metadata_t meta;
-
-    FILE* src = fopen(path, "rb");
-    if (!src) {
-        std::cerr << "error: failed to open " << path << " for reading" << std::endl;
-        return 1;
-    }
-
-
-    std::string nameInFat = BASE_PATH;
-    nameInFat += name;
-
-    const int flags = O_CREAT | O_TRUNC | O_RDWR;
-    int fd = emulate_esp_vfs_open(nameInFat.c_str(), flags, 0);
-    if (fd < 0) {
-        std::cerr << "error: failed to open \"" << nameInFat << "\" for writing" << std::endl;
-        return 0; //0 does not stop copying files
-    }
-
-
-    // read file size
-    fseek(src, 0, SEEK_END);
-    size_t size = ftell(src);
-    fseek(src, 0, SEEK_SET);
-
-    if (g_debugLevel > 0) {
-        std::cout << "file size: " << size << std::endl;
-    }
-
-    size_t left = size;
-    uint8_t data_byte;
-    while (left > 0){
-        if (1 != fread(&data_byte, 1, 1, src)) {
-            std::cerr << "fread error!" << std::endl;
-            fclose(src);
-            emulate_esp_vfs_close(fd);
-            return 1;
-        }
-        ssize_t res = emulate_esp_vfs_write(fd, &data_byte, 1);
-        if (res < 0) {
-            std::cerr << "esp_vfs_write() error" << std::endl;
-            if (g_debugLevel > 0) {
-                std::cout << "data left: " << left << std::endl;
-            }
-            fclose(src);
-            emulate_esp_vfs_close(fd);
-            return 1;
-        }
-        left -= 1;
-    }
-
-    emulate_esp_vfs_close(fd);
-
-    // Get the system time to file timestamps
-//    meta.atime = time(NULL);
-//    meta.ctime = meta.atime;
-//    meta.mtime = meta.atime;
-//    SPIFFS_update_meta(&s_fs, name, &meta);
-
-    fclose(src);
-
-    return 0;
-}
 
 int addFiles(const char* dirname, const char* subPath) {
     DIR *dir;
@@ -370,78 +277,7 @@ void listFiles() {
 
 
 
-bool fatfsMount(){
-  bool result;
-  esp_vfs_fat_mount_config_t mountConfig;
-  mountConfig.max_files = 4;
-  mountConfig.format_if_mount_failed = true;
-  result = (ESP_OK == emulate_esp_vfs_fat_spiflash_mount(BASE_PATH, &mountConfig, &s_wl_handle, &s_fs, s_imageSize));
 
-  return result;
-}
-
-
-bool fatfsUnmount(){
-  bool result;
-
-  result = (ESP_OK == emulate_esp_vfs_fat_spiflash_unmount(BASE_PATH, s_wl_handle));
-
-  if (result) {
-    if (g_debugLevel > 0) {
-      std::cout << "Unmounted successfully" << std::endl;
-    }
-  } else {
-    std::cerr << "Unmount failed" << std::endl;
-  }
-
-  return result;
-}
-
-
-
-/**
- * @brief Check if directory exists.
- * @param path Directory path.
- * @return True if exists otherwise false.
- *
- * @author Pascal Gollor (http://www.pgollor.de/cms/)
- */
-bool dirExists(const char* path) {
-    DIR *d = opendir(path);
-
-    if (d) {
-        closedir(d);
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * @brief Create directory if it not exists.
- * @param path Directory path.
- * @return True or false.
- *
- * @author Pascal Gollor (http://www.pgollor.de/cms/)
- */
-bool dirCreate(const char* path) {
-    // Check if directory also exists.
-    if (dirExists(path)) {
-	    return false;
-    }
-
-    // platform stuff...
-#if defined(_WIN32)
-    if (_mkdir(path) != 0) {
-#else
-    if (mkdir(path, S_IRWXU | S_IXGRP | S_IRGRP | S_IROTH | S_IXOTH) != 0) {
-#endif
-	    std::cerr << "Can not create directory!!!" << std::endl;
-		return false;
-    }
-
-    return true;
-}
 
 /**
  * @brief Unpack file from file system.
@@ -561,49 +397,6 @@ bool unpackFiles(std::string sDest) {
 
 // Actions
 
-int actionPack() {
-    int ret = 0; //0 - ok
-
-    g_flashmem.resize(s_imageSize, 0xff);
-
-    FILE* fdres = fopen(s_imageName.c_str(), "wb");
-    if (!fdres) {
-        std::cerr << "error: failed to open image file" << std::endl;
-        return 1;
-    }
-
-    if (fatfsMount()) {
-      if (g_debugLevel > 0) {
-        std::cout << "Mounted successfully" << std::endl;
-      }
-    } else {
-      std::cerr << "Mount failed" << std::endl;
-      return 1;
-    }  
-
-
-
-    //spiffsFormat();
-
-	// WHITECAT BEGIN
-	//addDir("");
-	// WHITECAT END
-	
-    ret = addFiles(s_dirName.c_str(), "/");
-    if (ret == 0) {
-      ret = checkFiles(s_dirName.c_str(), "/");
-    }
-    fatfsUnmount();
-
-    fwrite(&g_flashmem[0], 4, g_flashmem.size()/4, fdres);
-    fclose(fdres);
-
-    if (g_debugLevel > 0) {
-      std::cout << "Image file is written to \"" << s_imageName << "\"" << std::endl;
-    }
-
-    return ret;
-}
 
 /**
  * @brief Unpack action.

@@ -18,7 +18,7 @@
 #define TCLAP_SETBASE_ZERO 1
 #include "tclap/CmdLine.h"
 #include "tclap/UnlabeledValueArg.h"
-#include "pack_win32.h"
+#include "pack.h"
 
 #define APP_VERSION mkfatfs_VERSION
 static const char* TAG = "main.cpp";
@@ -31,6 +31,7 @@ static Action s_action = ACTION_NONE;
 static std::string s_dirName;
 static std::string s_imageName;
 static int s_imageSize;
+Pack pack = Pack();
 
 //---------------------------------------------
 void processArgs(int argc, const char** argv) {
@@ -82,10 +83,10 @@ int main(int argc, const char * argv[]) {
 
     switch (s_action) {
     case ACTION_PACK:
-        return actionPack();
+        return pack.actionPack(s_dirName, s_imageName, s_imageSize);
         break;
     case ACTION_UNPACK:
-        return actionUnpack();
+        return pack.actionUnpack(s_imageName, s_dirName, s_imageSize);
          break;
     case ACTION_LIST:
 

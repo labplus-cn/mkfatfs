@@ -31,13 +31,8 @@ add_subdirectory(esp_idf/freertos)
 # aux_source_directory(filesystem/vfs DIR_VFS)
 
 # add_executable(mkfatfs ${DIR_SRCS} ${DIR_ESP_IDF} ${DIR_RTOS} ${DIR_DISKIO} ${DIR_FATFS} ${DIR_VFS})
-if (WIN32)
-    add_executable(mkfatfs main.cpp pack_win32.cpp)
-elseif(APPLE) 
-	MESSAGE(STATUS "Now is Apple systens.")
-elseif(UNIX)
-    add_executable(mkfatfs main.cpp pack_linux.cpp)
-endif() 
+
+add_executable(mkfatfs main.cpp pack.cpp)
 
 target_link_libraries(mkfatfs -Wl,--start-group esp-idf vfs diskio fatfs freertos -Wl,--end-group)
 
