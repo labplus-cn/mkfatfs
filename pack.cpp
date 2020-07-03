@@ -12,6 +12,16 @@ static const char* TAG = "pack.cpp";
 static RAM_handle_t s_ram_handle;
 static FATFS* s_fs = NULL;
 
+struct dirent_1 {
+    int d_ino;          /*!< file number */
+    uint8_t d_type;     /*!< not defined in POSIX, but present in BSD and Linux */
+    uint8_t no_use[3];
+// #define DT_UNKNOWN  0
+// #define DT_REG      1
+// #define DT_DIR      2
+    char d_name[256];   /*!< zero-terminated file name */
+}dirent_t;
+
 Pack::Pack()
 {}
 Pack::~Pack()
@@ -307,7 +317,7 @@ int Pack::unparkFileFromRamFS(const char* path_src, const char* path_des)
 bool Pack::unparkFilesFromRamFS(const char* dirSrc, const char* dirDes)
 {
     DIR *dir;
-    struct dirent *ent;
+    struct dirent_1 *ent;
     bool error = false;
     std::string dir_pc = dirDes;
     std::string dir_RAM_fs = dirSrc;
@@ -316,25 +326,34 @@ bool Pack::unparkFilesFromRamFS(const char* dirSrc, const char* dirDes)
     std::cout << "dir_RAM_fs: "<< dir_RAM_fs.c_str() << "  dir_pc: "<< dir_pc.c_str() << std::endl;
 
     // Open directory
-    // std::cout << "dir_RAM_fs: "<< dir_RAM_fs.c_str()  << std::endl;
     if ((dir = emulate_vfs_opendir(dir_RAM_fs.c_str())) != NULL) {
 
         // Read files from directory.
-        while ((ent = emulate_vfs_readdir (dir)) != NULL) { //处理目录中的每一项
+        while ((ent = (struct dirent_1 *)emulate_vfs_readdir (dir)) != NULL) { //处理目录中的每一项
             // Ignore dir itself.         	
             if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
             {
-                std::cout << "ent->d_name: "<< ent->d_name  << std::endl;
                 continue;
             }
                
+            std::cout << "ent->d_name: "<< ent->d_name  << std::endl;
             dir_full_path_s = dir_RAM_fs + "/" + ent->d_name;
-            dir_full_path_d = dir_pc + "\\" + ent->d_name;
+            #if defined(_WIN32)
+                dir_full_path_d = dir_pc + "\\" + ent->d_name;
+            #else
+                dir_full_path_d = dir_pc + "/" + ent->d_name;
+            #endif
             std::cout << "RAM dir: "<< dir_full_path_s.c_str() << std::endl;
             struct stat path_stat;
             emulate_esp_vfs_stat (dir_full_path_s.c_str(), &path_stat); //通过文件名filename获取文件信息
+            std::cout << "file mode: "<< path_stat.st_mode << std::endl;
 
-            if (S_ISDIR(path_stat.st_mode)) { 
+            #if defined(_WIN32)
+                if (S_ISDIR(path_stat.st_mode)) 
+            #else
+                if (path_stat.st_mode & 0x4000) 
+            #endif
+            {
                 std::cout << "Sub dir: "<< ent->d_name << "  full dir_full_path_s: "<< dir_full_path_s.c_str() << "   full dir_full_path_d: "<< dir_full_path_d.c_str() << "\n" << std::endl;
                 dirCreate(dir_full_path_d.c_str());
                 if (unparkFilesFromRamFS(dir_full_path_s.c_str(), dir_full_path_d.c_str()) != 0)
@@ -342,9 +361,14 @@ bool Pack::unparkFilesFromRamFS(const char* dirSrc, const char* dirDes)
                     std::cerr << "Error for unpark content from " << ent->d_name << "!" << std::endl;
                 }
             }
-            else if (S_ISREG(path_stat.st_mode)) //常规文件
+            #if defined(_WIN32)
+                else if (S_ISREG(path_stat.st_mode)) //常规文件
+            #else
+                else if (path_stat.st_mode & 0x8000) 
+            #endif          
             { 
                 // Add File to image.
+                std::cerr << "unpark file......!" << std::endl;
                 if (unparkFileFromRamFS(dir_full_path_s.c_str(), dir_full_path_d.c_str()) != 0) {
                     std::cerr << "error unpark file!" << std::endl;
                     error = true;
