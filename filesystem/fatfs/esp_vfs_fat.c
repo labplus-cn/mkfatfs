@@ -17,7 +17,7 @@
 #include <unistd.h>
 #include <idf_dirent.h> //MVA <dirent.h>
 #include <time.h> //MVA added
-#include "errno.h"
+#include "esp_errno.h"
 #include <sys/fcntl.h>
 #include "lock.h"
 #include "esp_vfs.h"
@@ -361,7 +361,7 @@ static int vfs_fat_open(void* ctx, const char * path, int flags, int mode)
     int fd = get_next_fd(fat_ctx);
     if (fd < 0) {
         ESP_LOGE(TAG, "open: no free file descriptors");
-        errno = ENFILE;
+        esp_errno = ENFILE;
         fd = -1;
         goto out;
     }
@@ -369,7 +369,7 @@ static int vfs_fat_open(void* ctx, const char * path, int flags, int mode)
     if (res != FR_OK) {
         ESP_LOGD(TAG, "%s: fresult=%d", __func__, res);
         file_cleanup(fat_ctx, fd);
-        errno = fresult_to_errno(res);
+        esp_errno = fresult_to_errno(res);
         fd = -1;
         goto out;
     }
@@ -386,7 +386,7 @@ static ssize_t vfs_fat_write(void* ctx, int fd, const void * data, size_t size)
     FRESULT res = f_write(file, data, size, &written);
     if (res != FR_OK) {
         ESP_LOGD(TAG, "%s: fresult=%d", __func__, res);
-        errno = fresult_to_errno(res);
+        esp_errno = fresult_to_errno(res);
         if (written == 0) {
             return -1;
         }
@@ -402,7 +402,7 @@ static ssize_t vfs_fat_read(void* ctx, int fd, void * dst, size_t size)
     FRESULT res = f_read(file, dst, size, &read);
     if (res != FR_OK) {
         ESP_LOGD(TAG, "%s: fresult=%d", __func__, res);
-        errno = fresult_to_errno(res);
+        esp_errno = fresult_to_errno(res);
         if (read == 0) {
             return -1;
         }
@@ -420,7 +420,7 @@ static int vfs_fat_close(void* ctx, int fd)
     int rc = 0;
     if (res != FR_OK) {
         ESP_LOGD(TAG, "%s: fresult=%d", __func__, res);
-        errno = fresult_to_errno(res);
+        esp_errno = fresult_to_errno(res);
         rc = -1;
     }
     _lock_release(&fat_ctx->lock);
@@ -441,13 +441,13 @@ static off_t vfs_fat_lseek(void* ctx, int fd, off_t offset, int mode)
         off_t size = f_size(file);
         new_pos = size + offset;
     } else {
-        errno = EINVAL;
+        esp_errno = EINVAL;
         return -1;
     }
     FRESULT res = f_lseek(file, new_pos);
     if (res != FR_OK) {
         ESP_LOGD(TAG, "%s: fresult=%d", __func__, res);
-        errno = fresult_to_errno(res);
+        esp_errno = fresult_to_errno(res);
         return -1;
     }
     return new_pos;
@@ -472,7 +472,7 @@ static int vfs_fat_stat(void* ctx, const char * path, struct stat * st)
     _lock_release(&fat_ctx->lock);
     if (res != FR_OK) {
         ESP_LOGD(TAG, "%s: fresult=%d", __func__, res);
-        errno = fresult_to_errno(res);
+        esp_errno = fresult_to_errno(res);
         return -1;
     }
     st->st_size = info.fsize;
@@ -504,7 +504,7 @@ static int vfs_fat_unlink(void* ctx, const char *path)
     _lock_release(&fat_ctx->lock);
     if (res != FR_OK) {
         ESP_LOGD(TAG, "%s: fresult=%d", __func__, res);
-        errno = fresult_to_errno(res);
+        esp_errno = fresult_to_errno(res);
         return -1;
     }
     return 0;
@@ -525,7 +525,7 @@ static int vfs_fat_link(void* ctx, const char* n1, const char* n2)
         free(pf1);
         free(pf2);
         free(buf);
-        errno = ENOMEM;
+        esp_errno = ENOMEM;
         _lock_release(&fat_ctx->lock);
         return -1;
     }
@@ -573,7 +573,7 @@ fail1:
     free(buf);
     if (res != FR_OK) {
         ESP_LOGD(TAG, "%s: fresult=%d", __func__, res);
-        errno = fresult_to_errno(res);
+        esp_errno = fresult_to_errno(res);
         return -1;
     }
     return 0;
@@ -588,7 +588,7 @@ static int vfs_fat_rename(void* ctx, const char *src, const char *dst)
     _lock_release(&fat_ctx->lock);
     if (res != FR_OK) {
         ESP_LOGD(TAG, "%s: fresult=%d", __func__, res);
-        errno = fresult_to_errno(res);
+        esp_errno = fresult_to_errno(res);
         return -1;
     }
     return 0;
@@ -602,7 +602,7 @@ static DIR* vfs_fat_opendir(void* ctx, const char* name)
     vfs_fat_dir_t* fat_dir = calloc(1, sizeof(vfs_fat_dir_t));
     if (!fat_dir) {
         _lock_release(&fat_ctx->lock);
-        errno = ENOMEM;
+        esp_errno = ENOMEM;
         return NULL;
     }
     FRESULT res = f_opendir(&fat_dir->ffdir, name);
@@ -610,7 +610,7 @@ static DIR* vfs_fat_opendir(void* ctx, const char* name)
     if (res != FR_OK) {
         free(fat_dir);
         ESP_LOGD(TAG, "%s: fresult=%d", __func__, res);
-        errno = fresult_to_errno(res);
+        esp_errno = fresult_to_errno(res);
         return NULL;
     }
     return (DIR*) fat_dir;
@@ -624,7 +624,7 @@ static int vfs_fat_closedir(void* ctx, DIR* pdir)
     free(pdir);
     if (res != FR_OK) {
         ESP_LOGD(TAG, "%s: fresult=%d", __func__, res);
-        errno = fresult_to_errno(res);
+        esp_errno = fresult_to_errno(res);
         return -1;
     }
     return 0;
@@ -636,7 +636,7 @@ static struct dirent* vfs_fat_readdir(void* ctx, DIR* pdir)
     struct dirent* out_dirent;
     int err = vfs_fat_readdir_r(ctx, pdir, &fat_dir->cur_dirent, &out_dirent);
     if (err != 0) {
-        errno = err;
+        esp_errno = err;
         return NULL;
     }
     return out_dirent;
@@ -686,7 +686,7 @@ static void vfs_fat_seekdir(void* ctx, DIR* pdir, long offset)
         res = f_rewinddir(&fat_dir->ffdir);
         if (res != FR_OK) {
             ESP_LOGD(TAG, "%s: rewinddir fresult=%d", __func__, res);
-            errno = fresult_to_errno(res);
+            esp_errno = fresult_to_errno(res);
             return;
         }
         fat_dir->offset = 0;
@@ -695,7 +695,7 @@ static void vfs_fat_seekdir(void* ctx, DIR* pdir, long offset)
         res = f_readdir(&fat_dir->ffdir, &fat_dir->filinfo);
         if (res != FR_OK) {
             ESP_LOGD(TAG, "%s: f_readdir fresult=%d", __func__, res);
-            errno = fresult_to_errno(res);
+            esp_errno = fresult_to_errno(res);
             return;
         }
         fat_dir->offset++;
@@ -712,7 +712,7 @@ static int vfs_fat_mkdir(void* ctx, const char* name, mode_t mode)
     _lock_release(&fat_ctx->lock);
     if (res != FR_OK) {
         ESP_LOGD(TAG, "%s: fresult=%d", __func__, res);
-        errno = fresult_to_errno(res);
+        esp_errno = fresult_to_errno(res);
         return -1;
     }
     return 0;
@@ -727,7 +727,7 @@ static int vfs_fat_rmdir(void* ctx, const char* name)
     _lock_release(&fat_ctx->lock);
     if (res != FR_OK) {
         ESP_LOGD(TAG, "%s: fresult=%d", __func__, res);
-        errno = fresult_to_errno(res);
+        esp_errno = fresult_to_errno(res);
         return -1;
     }
     return 0;

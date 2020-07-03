@@ -15,7 +15,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <errno.h>
+// #include <errno.h>
+#include "esp_errno.h"
 #include "esp_vfs.h"
 #include "esp_log.h"
 
@@ -415,7 +416,7 @@ int vfs_readdir_r(DIR* pdir, struct dirent* entry, struct dirent** out_dirent)
     const vfs_entry_t* vfs = get_vfs_for_fd(pdir->dd_vfs_idx);
     struct _idf_reent* r = __idf_getreent();
     if (vfs == NULL) {
-        errno = EBADF;
+        esp_errno = EBADF;
         return -1;
     }
     int ret;
@@ -428,7 +429,7 @@ long vfs_telldir(DIR* pdir)
     const vfs_entry_t* vfs = get_vfs_for_fd(pdir->dd_vfs_idx);
     struct _idf_reent* r = __idf_getreent();
     if (vfs == NULL) {
-        errno = EBADF;
+        esp_errno = EBADF;
         return -1;
     }
     long ret;
@@ -441,7 +442,7 @@ void vfs_seekdir(DIR* pdir, long loc)
     const vfs_entry_t* vfs = get_vfs_for_fd(pdir->dd_vfs_idx);
     struct _idf_reent* r = __idf_getreent();
     if (vfs == NULL) {
-        errno = EBADF;
+        esp_errno = EBADF;
         return;
     }
     CHECK_AND_CALLV(r, vfs, seekdir, pdir, loc);
@@ -457,7 +458,7 @@ int vfs_closedir(DIR* pdir)
     const vfs_entry_t* vfs = get_vfs_for_fd(pdir->dd_vfs_idx);
     struct _idf_reent* r = __idf_getreent();
     if (vfs == NULL) {
-        errno = EBADF;
+        esp_errno = EBADF;
         return -1;
     }
     int ret;

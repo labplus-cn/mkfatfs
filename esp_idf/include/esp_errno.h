@@ -29,7 +29,7 @@ extern __IMPORT char *program_invocation_short_name;
 #endif
 */
 
-extern int errno;
+extern int esp_errno;
 //MVA ^^^
 
 

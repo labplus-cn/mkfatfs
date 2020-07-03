@@ -12,7 +12,9 @@
 #include <memory>
 #include <cstdlib>
 #include <stdio.h>
-#include <io.h>
+#if defined(_WIN32)
+    #include <io.h>
+#endif
 #include <dirent.h>
 #include "esp_vfs_fat.h"
 #include "user_vfs.h"

@@ -1,11 +1,11 @@
-#include "errno.h"
+#include "esp_errno.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-int errno;
+int esp_errno;
 
 
 #ifdef __cplusplus
