@@ -21,7 +21,6 @@
 #include "pack.h"
 
 #define APP_VERSION mkfatfs_VERSION
-static const char* TAG = "main.cpp";
 
 int g_debugLevel = 0;
 
@@ -33,7 +32,6 @@ static std::string s_imageName;
 static int s_imageSize;
 Pack pack = Pack();
 
-//---------------------------------------------
 void processArgs(int argc, const char** argv) {
     TCLAP::CmdLine cmd("", ' ', APP_VERSION);
     TCLAP::ValueArg<std::string> packArg( "c", "create", "create fatFS image from a directory", true, "", "pack_dir");
@@ -72,7 +70,6 @@ void processArgs(int argc, const char** argv) {
     s_imageSize = imageSizeArg.getValue();
 }
 
-//=======================================
 int main(int argc, const char * argv[]) {
     try {
         processArgs(argc, argv);

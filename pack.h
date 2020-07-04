@@ -40,9 +40,9 @@ private:
     size_t getFileSize(FILE* fp);
     bool   dirExists(const char* path);
     bool   dirCreate(const char* path);
-    int    addDir(const char* name);
-    int    addFile(char* path_src, const char* path_des);
-    bool   parkToRamFS(const char* dirSrc, const char* dirDes);
+    int    parkDirToRamFS(const char* name);
+    int    parkFileToRamFS(char* path_src, const char* path_des);
+    bool   parkFilesToRamFS(const char* dirSrc, const char* dirDes);
     int    unparkFileFromRamFS(const char* path_src, const char* path_des);
     bool   unparkFilesFromRamFS(const char* dirSrc, const char* dirDes);
 
