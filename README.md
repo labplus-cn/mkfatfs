@@ -6,9 +6,16 @@ Tool to build and unpack [FATFS](https://github.com/jkearins/ESP32_mkfatfs) imag
 
 ```
 
-   mkfatfs  {-c <pack_dir>|-u <dest_dir>|-l|-i} [-d <0-5>] [-b <number>]
-             [-p <number>] [-s <number>] [--] [--version] [-h]
-             <image_file>
+  in windows:
+
+  mkfatfs  {-c <pack_dir>|-u <dest_dir>|-l|-i} [-d <0-5>] [-b <number>]
+            [-p <number>] [-s <number>] [--] [--version] [-h]
+            <image_file>
+
+  in linux:
+  ./mkfatfs  {-c <pack_dir>|-u <dest_dir>|-l|-i} [-d <0-5>] [-b <number>]
+          [-p <number>] [-s <number>] [--] [--version] [-h]
+          <image_file>
 
 
 Where: 
@@ -55,11 +62,9 @@ Where:
 ## Build
 
 You need gcc (≥4.8) or clang(≥600.0.57), and make. On Windows, use MinGW.
-
-Run:
-```bash
-$ make dist
-```
+You need cmake (≥3.0.0).
+Youn can develop in vscode. install extension CMake and CMake Tools.
+More help for build project, please read the extension's help.
 
 ## License
 
