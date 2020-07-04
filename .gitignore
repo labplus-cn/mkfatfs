@@ -1,5 +1,3 @@
-mkfatfs
-mkfatfs.exe
 *.o
 *.a
 /build/
