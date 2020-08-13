@@ -4,7 +4,7 @@
 //  Created by zhao hui jiang on 07/03/2020.
 //  Copyright (c). All rights reserved.
 //
-#include "pack.h"
+#include "pack_fat.h"
 
 static const char *BASE_PATH = "/fatfs";
 static RAM_handle_t s_ram_handle;
@@ -20,9 +20,9 @@ struct dirent_1 {
     char d_name[256];   /*!< zero-terminated file name */
 }dirent_t;
 
-Pack::Pack()
+Pack_fat::Pack_fat()
 {}
-Pack::~Pack()
+Pack_fat::~Pack_fat()
 {}
 
 /**
@@ -31,7 +31,7 @@ Pack::~Pack()
  * @param 
  * @return True or false.
  */
-bool Pack::fatfsMount(int s_imageSize) {
+bool Pack_fat::fsMount(int s_imageSize) {
   bool result;
   esp_vfs_fat_mount_config_t mountConfig;
   mountConfig.max_files = 4; //Max files.
@@ -47,7 +47,7 @@ bool Pack::fatfsMount(int s_imageSize) {
  * @param 
  * @return True or false.
  */
-bool Pack::fatfsUnmount() {
+bool Pack_fat::fsUnmount() {
   bool result;
 
   result = (ESP_OK == emulate_esp_vfs_fat_spiflash_unmount(BASE_PATH, s_ram_handle));
@@ -63,7 +63,7 @@ bool Pack::fatfsUnmount() {
   return result;
 }
 
-size_t Pack::getFileSize(FILE* fp)
+size_t Pack_fat::getFileSize(FILE* fp)
 {
     fseek(fp, 0L, SEEK_END);
     size_t size = (size_t) ftell(fp);
@@ -77,7 +77,7 @@ size_t Pack::getFileSize(FILE* fp)
  * @return True if exists otherwise false.
  *
  */
-bool Pack::dirExists(const char* path) {
+bool Pack_fat::dirExists(const char* path) {
     DIR *d = opendir(path);
 
     if (d) {
@@ -93,7 +93,7 @@ bool Pack::dirExists(const char* path) {
  * @param path Directory path.
  * @return True or false.
  */
-bool Pack::dirCreate(const char* path) {
+bool Pack_fat::dirCreate(const char* path) {
     // Check if directory also exists.
     if (dirExists(path)) {
 	    return false;
@@ -117,7 +117,7 @@ bool Pack::dirCreate(const char* path) {
  * @param path Directory name, full path.
  * @return True or false.
  */
-int Pack::parkDirToRamFS(const char* name) {
+int Pack_fat::parkDirToRamFS(const char* name) {
     std::string fileName = name;
     fileName += "/.";
 
@@ -140,7 +140,7 @@ int Pack::parkDirToRamFS(const char* name) {
  * @param path_des des Directory path, full path.
  * @return True or false.
  */
-int Pack::parkFileToRamFS(char* path_src, const char* path_des) {
+int Pack_fat::parkFileToRamFS(char* path_src, const char* path_des) {
     FILE* f_src = fopen(path_src, "rb"); //open file in pc.
     if (!f_src) {
         std::cerr << "error: failed to open " << path_src << " for reading" << std::endl;
@@ -200,7 +200,7 @@ int Pack::parkFileToRamFS(char* path_src, const char* path_des) {
  * @return True if exists otherwise false.
  *
  */
-bool Pack::parkFilesToRamFS(const char* dirSrc, const char* dirDes)
+bool Pack_fat::parkFilesToRamFS(const char* dirSrc, const char* dirDes)
 {  
     DIR *dir;
     bool error = false;
@@ -314,7 +314,7 @@ bool Pack::parkFilesToRamFS(const char* dirSrc, const char* dirDes)
  * @param path_des: des file, to pc
  * @return True or false.
  */
-int Pack::unparkFileFromRamFS(const char* path_src, const char* path_des) 
+int Pack_fat::unparkFileFromRamFS(const char* path_src, const char* path_des) 
 {
     std::vector<uint8_t> temp_buf;
 
@@ -354,7 +354,7 @@ int Pack::unparkFileFromRamFS(const char* path_src, const char* path_des)
  *  @param dirDes directory/file in pc.
  * @return True or false.
  */
-bool Pack::unparkFilesFromRamFS(const char* dirSrc, const char* dirDes)
+bool Pack_fat::unparkFilesFromRamFS(const char* dirSrc, const char* dirDes)
 {
     DIR *dir;
     struct dirent_1 *ent;
@@ -434,14 +434,14 @@ bool Pack::unparkFilesFromRamFS(const char* dirSrc, const char* dirDes)
  * @param 
  * @return True or false.
  */
-int Pack::actionPack(std::string s_dirName, std::string s_imageName, int s_imageSize) {
+int Pack_fat::actionPack(std::string s_dirName, std::string s_imageName, int s_imageSize) {
     int ret = 0; //0 - ok
 
     // 1. resize g_flashmem and fill 0xff, it will used for RAM fat filesystem.
     g_flashmem.resize(s_imageSize, 0xff);
 
     // 2. mount g_flashmem(in RAM) as a fat filesystem, mount point is BASE_PATH(root directory of the RAM filesystem). 
-    if (fatfsMount(s_imageSize)) { 
+    if (fsMount(s_imageSize)) { 
       if (g_debugLevel > 0) {
         std::cout << "Mounted successfully" << std::endl;
       }
@@ -454,7 +454,7 @@ int Pack::actionPack(std::string s_dirName, std::string s_imageName, int s_image
     ret = parkFilesToRamFS(s_dirName.c_str(), BASE_PATH);
 
     // 4. unmount the RAM fat filesystem.
-    fatfsUnmount();
+    fsUnmount();
 
     // 5. open *.bin file witch read from esp32. 
     FILE* fdres = fopen(s_imageName.c_str(), "wb"); 
@@ -483,7 +483,7 @@ int Pack::actionPack(std::string s_dirName, std::string s_imageName, int s_image
  * @param s_dirName directory in pc, we will read all files to it.
  * @return 0 success, 1 error
  */
-int Pack::actionUnpack(std::string s_imageName, std::string s_dirName,int s_imageSize)
+int Pack_fat::actionUnpack(std::string s_imageName, std::string s_dirName,int s_imageSize)
 {
     int ret = 0;
 
@@ -505,7 +505,7 @@ int Pack::actionUnpack(std::string s_imageName, std::string s_dirName,int s_imag
     fclose(f_src);
 
     // 3. mount RAM(g_flashmem) file system， so we can use vfs read file in RAM file system.
-    if (fatfsMount(s_imageSize)) {
+    if (fsMount(s_imageSize)) {
       if (g_debugLevel > 0) {
         std::cout << "Mounted successfully" << std::endl;
       }
@@ -523,7 +523,7 @@ int Pack::actionUnpack(std::string s_imageName, std::string s_dirName,int s_imag
     }
 
     // unmount file system
-    fatfsUnmount();
+    fsUnmount();
 
     return ret;
 }
