@@ -52,13 +52,8 @@ private:
     lfs2_t s_fs;
     lfs2_config s_cfg;
     lfs2_file_t f;
-    lfs2_rambd_config rambd_cfg = {
-        .erase_value = -1,
-        // .buffer = &g_flashmem[0],
-    };
-    lfs2_rambd_t bd = {
-        .cfg = &rambd_cfg
-    };
+    lfs2_rambd_config rambd_cfg;
+    lfs2_rambd_t bd;
 
 protected:
 

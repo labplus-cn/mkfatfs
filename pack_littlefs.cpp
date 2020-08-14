@@ -10,7 +10,10 @@
 extern int g_debugLevel;
 
 Pack_littlefs::Pack_littlefs()
-{}
+{
+    rambd_cfg.erase_value = -1;
+    bd.cfg = &rambd_cfg;
+}
 Pack_littlefs::~Pack_littlefs()
 {}
 
