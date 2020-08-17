@@ -122,6 +122,7 @@ esp_err_t ff_diskio_register_RAM_partition(BYTE pdrv, RAM_handle_t RAM_handle, e
 esp_err_t ff_diskio_unregister_RAM_partition(BYTE pdrv, RAM_handle_t RAM_handle)
 {
     // delete part[pdrv];
+    return ESP_OK;
 }
 
 BYTE ff_diskio_get_pdrv_RAM(RAM_handle_t RAM_handle)

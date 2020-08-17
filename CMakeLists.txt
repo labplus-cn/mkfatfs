@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(mkfatfs VERSION 0.1.0)
+project(mkfatfs VERSION 2.0.1)
 
-# # specify the C++ standard
-# set(CMAKE_CXX_STANDARD 11)
-# set(CMAKE_CXX_STANDARD_REQUIRED True)
+# specify the C++ standard
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 configure_file(Config.h.in Config.h)
 

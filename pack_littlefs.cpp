@@ -268,9 +268,10 @@ bool Pack_littlefs::parkFilesToRamFS(const char* dirSrc, const char* dirDes)
         {
             if (strcmp(findData.name, ".") == 0 || strcmp(findData.name, "..") == 0)
                 continue;
-
-            std::cout << "\n" << "dir_RAM_fs: "<< dir_RAM_fs.c_str() << "  dir_pc: "<< dir_pc.c_str() << std::endl;
-            std::cout << "Sub dir: "<< findData.name << "  full dir_full_path_s: "<< dir_full_path_s.c_str() << "   full dir_full_path_d: "<< dir_full_path_d.c_str() << "\n" << std::endl;
+            if (g_debugLevel > 0) {
+                std::cout << "\n" << "dir_RAM_fs: "<< dir_RAM_fs.c_str() << "  dir_pc: "<< dir_pc.c_str() << std::endl;
+                std::cout << "Sub dir: "<< findData.name << "  full dir_full_path_s: "<< dir_full_path_s.c_str() << "   full dir_full_path_d: "<< dir_full_path_d.c_str() << "\n" << std::endl;
+            }
             lfs2_mkdir(&s_fs, dir_full_path_d.c_str()); // Ignore error, we'll catch later if it's fatal
             parkFilesToRamFS(dir_full_path_s.c_str(), dir_full_path_d.c_str()); 
         }
@@ -284,7 +285,9 @@ bool Pack_littlefs::parkFilesToRamFS(const char* dirSrc, const char* dirDes)
                 }
                 break;
             }
-            std::cout << "Pack file, dir_full_path_s: " << dir_full_path_s.c_str() << "dir_full_path_d: "<< dir_full_path_d.c_str() << "  file name: "<< findData.name << std::endl;
+            if (g_debugLevel > 0) {
+                std::cout << "Pack file, dir_full_path_s: " << dir_full_path_s.c_str() << "dir_full_path_d: "<< dir_full_path_d.c_str() << "  file name: "<< findData.name << std::endl;
+            }
         }
 
     } while (_findnext(handle, &findData) == 0);
@@ -306,10 +309,10 @@ bool Pack_littlefs::parkFilesToRamFS(const char* dirSrc, const char* dirDes)
 
             if (ent->d_name[0] == '.') // Ignore dir itself.			
                 continue;            	
-
-            std::cout << "\n" << "dir_RAM_fs: "<< dir_RAM_fs.c_str() << "  dir_pc: "<< dir_pc.c_str() << std::endl;
-            std::cout << "Sub dir: "<< ent->d_name << "  full dir_full_path_s: "<< dir_full_path_s.c_str() << "   full dir_full_path_d: "<< dir_full_path_d.c_str() << "\n" << std::endl;
-           
+            if (g_debugLevel > 0) {
+                std::cout << "\n" << "dir_RAM_fs: "<< dir_RAM_fs.c_str() << "  dir_pc: "<< dir_pc.c_str() << std::endl;
+                std::cout << "Sub dir: "<< ent->d_name << "  full dir_full_path_s: "<< dir_full_path_s.c_str() << "   full dir_full_path_d: "<< dir_full_path_d.c_str() << "\n" << std::endl;
+            }
             struct stat path_stat;
             stat (dir_full_path_s.c_str(), &path_stat);
 
@@ -405,7 +408,9 @@ bool Pack_littlefs::unparkFilesFromRamFS(const char* dirSrc, std::string dirDes)
     // Check if directory exists. If it does not then try to create it with permissions 755.
     if (! dirExists(dirDes.c_str()))
     {
-        std::cout << "Directory " << dirDes << " does not exists. Try to create it." << std::endl;
+        if (g_debugLevel > 0) {
+            std::cout << "Directory " << dirDes << " does not exists. Try to create it." << std::endl;
+        }
 
         // Try to create directory on pc.
         if (! dirCreate(dirDes.c_str())) {
@@ -425,24 +430,29 @@ bool Pack_littlefs::unparkFilesFromRamFS(const char* dirSrc, std::string dirDes)
 
         // Check if content is a file.
         if ((int)(ent.type) == LFS2_TYPE_REG) {
+
             std::string name = (const char*)(ent.name);
             std::string dirDesFilePath = dirDes + name;
 
             // Unpack file to destination directory.
             if (! unparkFileFromRamFS(dirSrc, &ent, dirDesFilePath.c_str()) ) {
-                std::cout << "Can not unpack " << ent.name << "!" << std::endl;
+                if (g_debugLevel > 0) {
+                 std::cout << "Can not unpack " << ent.name << "!" << std::endl;
+                }
                 return false;
             }
 
             // Output stuff.
-            std::cout
-                << dirSrc
-                << ent.name
-                << '\t'
-                << " > " << dirDesFilePath
-                << '\t'
-                << "size: " << ent.size << " Bytes"
-                << std::endl;
+            if (g_debugLevel > 0) {
+                std::cout
+                    << dirSrc
+                    << ent.name
+                    << '\t'
+                    << " > " << dirDesFilePath
+                    << '\t'
+                    << "size: " << ent.size << " Bytes"
+                    << std::endl;
+            }
         } else if (ent.type == LFS2_TYPE_DIR) {
             char newPath[PATH_MAX];
             if (dirSrc[0]) {
@@ -491,7 +501,9 @@ int Pack_littlefs::actionPack(std::string s_dirName, std::string s_imageName, in
     }
 
     // 6. copy all data in g_flashmem to *.bin file.
-    std::cout << "g_flashmem[0]: " << g_flashmem[0] << "size: " << g_flashmem.size() << std::endl;
+    if (g_debugLevel > 0) {
+        std::cout << "g_flashmem[0]: " << g_flashmem[0] << "size: " << g_flashmem.size() << std::endl;
+    }
     fwrite(&g_flashmem[0], 4, g_flashmem.size()/4, fdres); //write all data in RAM littlefsfs to *.bin.
     fclose(fdres);
 

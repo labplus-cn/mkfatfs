@@ -235,9 +235,10 @@ bool Pack_fat::parkFilesToRamFS(const char* dirSrc, const char* dirDes)
         {
             if (strcmp(findData.name, ".") == 0 || strcmp(findData.name, "..") == 0)
                 continue;
-
-            std::cout << "\n" << "dir_RAM_fs: "<< dir_RAM_fs.c_str() << "  dir_pc: "<< dir_pc.c_str() << std::endl;
-            std::cout << "Sub dir: "<< findData.name << "  full dir_full_path_s: "<< dir_full_path_s.c_str() << "   full dir_full_path_d: "<< dir_full_path_d.c_str() << "\n" << std::endl;
+            if (g_debugLevel > 0) {
+                std::cout << "\n" << "dir_RAM_fs: "<< dir_RAM_fs.c_str() << "  dir_pc: "<< dir_pc.c_str() << std::endl;
+                std::cout << "Sub dir: "<< findData.name << "  full dir_full_path_s: "<< dir_full_path_s.c_str() << "   full dir_full_path_d: "<< dir_full_path_d.c_str() << "\n" << std::endl;
+            }
             emulate_vfs_mkdir(dir_full_path_d.c_str(), 1);
             parkFilesToRamFS(dir_full_path_s.c_str(), dir_full_path_d.c_str()); 
         }
@@ -252,7 +253,9 @@ bool Pack_fat::parkFilesToRamFS(const char* dirSrc, const char* dirDes)
                 }
                 break;
             }
-            std::cout << "Pack file, dir_full_path_s: " << dir_full_path_s.c_str() << "dir_full_path_d: "<< dir_full_path_d.c_str() << "  file name: "<< findData.name << std::endl;
+            if (g_debugLevel > 0) {
+                std::cout << "Pack file, dir_full_path_s: " << dir_full_path_s.c_str() << "dir_full_path_d: "<< dir_full_path_d.c_str() << "  file name: "<< findData.name << std::endl;
+            }
         }
 
     } while (_findnext(handle, &findData) == 0);
@@ -273,10 +276,11 @@ bool Pack_fat::parkFilesToRamFS(const char* dirSrc, const char* dirDes)
 
             if (ent->d_name[0] == '.') // Ignore dir itself.			
                 continue;            	
+            if (g_debugLevel > 0) {
+                std::cout << "\n" << "dir_RAM_fs: "<< dir_RAM_fs.c_str() << "  dir_pc: "<< dir_pc.c_str() << std::endl;
+                std::cout << "Sub dir: "<< ent->d_name << "  full dir_full_path_s: "<< dir_full_path_s.c_str() << "   full dir_full_path_d: "<< dir_full_path_d.c_str() << "\n" << std::endl;
+            }
 
-            std::cout << "\n" << "dir_RAM_fs: "<< dir_RAM_fs.c_str() << "  dir_pc: "<< dir_pc.c_str() << std::endl;
-            std::cout << "Sub dir: "<< ent->d_name << "  full dir_full_path_s: "<< dir_full_path_s.c_str() << "   full dir_full_path_d: "<< dir_full_path_d.c_str() << "\n" << std::endl;
-           
             struct stat path_stat;
             stat (dir_full_path_s.c_str(), &path_stat);
 
@@ -333,7 +337,7 @@ int Pack_fat::unparkFileFromRamFS(const char* path_src, const char* path_des)
 
     size_t size = emulate_esp_vfs_lseek(f_src, 0, SEEK_END);
     emulate_esp_vfs_lseek(f_src, 0, SEEK_SET);
-    std::cout << "file size: " << size << std::endl;
+
     if (g_debugLevel > 0) {
         std::cout << "file size: " << size << std::endl;
     }
@@ -375,18 +379,26 @@ bool Pack_fat::unparkFilesFromRamFS(const char* dirSrc, const char* dirDes)
             {
                 continue;
             }
-               
-            std::cout << "ent->d_name: "<< ent->d_name  << std::endl;
+            if (g_debugLevel > 0) {
+                std::cout << "ent->d_name: "<< ent->d_name  << std::endl;
+            }
+
             dir_full_path_s = dir_RAM_fs + "/" + ent->d_name;
             #if defined(_WIN32)
                 dir_full_path_d = dir_pc + "\\" + ent->d_name;
             #else
                 dir_full_path_d = dir_pc + "/" + ent->d_name;
             #endif
-            std::cout << "RAM dir: "<< dir_full_path_s.c_str() << std::endl;
+
+            if (g_debugLevel > 0) {
+             std::cout << "RAM dir: "<< dir_full_path_s.c_str() << std::endl;
+            }
+
             struct stat path_stat;
             emulate_esp_vfs_stat (dir_full_path_s.c_str(), &path_stat); //get file info.
-            std::cout << "file mode: "<< path_stat.st_mode << std::endl;
+            if (g_debugLevel > 0) {
+                std::cout << "file mode: "<< path_stat.st_mode << std::endl;
+            }
 
             #if defined(_WIN32)
                 if (S_ISDIR(path_stat.st_mode)) 
@@ -394,7 +406,9 @@ bool Pack_fat::unparkFilesFromRamFS(const char* dirSrc, const char* dirDes)
                 if (path_stat.st_mode & 0x4000) 
             #endif
             {
-                std::cout << "Sub dir: "<< ent->d_name << "  full dir_full_path_s: "<< dir_full_path_s.c_str() << "   full dir_full_path_d: "<< dir_full_path_d.c_str() << "\n" << std::endl;
+                if (g_debugLevel > 0) {
+                    std::cout << "Sub dir: "<< ent->d_name << "  full dir_full_path_s: "<< dir_full_path_s.c_str() << "   full dir_full_path_d: "<< dir_full_path_d.c_str() << "\n" << std::endl;
+                }
                 dirCreate(dir_full_path_d.c_str());
                 if (unparkFilesFromRamFS(dir_full_path_s.c_str(), dir_full_path_d.c_str()) != 0)
                 {
@@ -408,7 +422,6 @@ bool Pack_fat::unparkFilesFromRamFS(const char* dirSrc, const char* dirDes)
             #endif          
             { 
                 // Add File to image.
-                std::cerr << "unpark file......!" << std::endl;
                 if (unparkFileFromRamFS(dir_full_path_s.c_str(), dir_full_path_d.c_str()) != 0) {
                     std::cerr << "error unpark file!" << std::endl;
                     error = true;
@@ -464,7 +477,10 @@ int Pack_fat::actionPack(std::string s_dirName, std::string s_imageName, int s_i
     }
 
     // 6. copy all data in g_flashmem to *.bin file.
-    std::cout << "g_flashmem[0]: " << g_flashmem[0] << "size: " << g_flashmem.size() << std::endl;
+    if (g_debugLevel > 0) {
+        std::cout << "g_flashmem[0]: " << g_flashmem[0] << "size: " << g_flashmem.size() << std::endl;
+    }
+    
     fwrite(&g_flashmem[0], 4, g_flashmem.size()/4, fdres); //write all data in RAM fatfs to *.bin.
     fclose(fdres);
 

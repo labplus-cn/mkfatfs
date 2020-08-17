@@ -2,3 +2,6 @@
 *.a
 /build/
 /CMakeFiles/
+/out/
+/.vscode/
+/.vs/
